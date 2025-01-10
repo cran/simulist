@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Wrangling simulated outbreak data</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Wrangling simulated outbreak data</h1>
+
+
+
+<p>The {simulist} R package can generate line list data
+(<code>sim_linelist()</code>), contact tracing data
+(<code>sim_contacts()</code>), or both (<code>sim_outbreak()</code>). By
+default the line list produced by <code>sim_linelist()</code> and
+<code>sim_outbreak()</code> contains 12 columns. Some amount of
+post-simulation data wrangling may be needed to use the simulated
+epidemiological case data to certain applications. This vignette
+demonstrates some common data wrangling tasks that may be performed on
+simulated line list or contact tracing data.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(simulist)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(epiparameter)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div>
+<p>This vignette provides data wrangling examples using both functions
+available in the R language (commonly called “base R”) as well as using
+<a href="https://www.tidyverse.org/">tidyverse R packages</a>, which are
+commonly applied to data science tasks in R. The tidyverse examples are
+shown by default, but select the “Base R” tab to see the equivalent
+functionality using base R. There are many other tools for wrangling
+data in R which are not covered by this vignette (e.g. <a href="https://rdatatable.gitlab.io/data.table/">{data.table}</a>).</p>
+<div class="alert alert-info">
+<p>See these great resources for more information on general data
+wrangling in R:</p>
+<ul>
+<li><a href="https://r4ds.hadley.nz/">R for Data Science by Hadley
+Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund</a></li>
+<li><a href="https://dplyr.tidyverse.org/">{dplyr} R package</a></li>
+<li><a href="https://github.com/tidyverse/tidyr">{tidyr} R
+package</a></li>
+<li><a href="https://intro2r.com/wrangling-data-frames.html">Wrangling
+data frames chapter in An Introduction to R by Alex Douglas, Deon Roos,
+Francesca Mancini, Ana Couto &amp; David Lusseau</a></li>
+</ul>
+</div>
+<div id="simulate-an-outbreak" class="section level2">
+<h2>Simulate an outbreak</h2>
+<p>To simulate an outbreak we will use the <code>sim_outbreak()</code>
+function from the {simulist} R package.</p>
+<div class="alert alert-info">
+<p>If you are unfamiliar with the {simulist} package or the
+<code>sim_outbreak()</code> function <a href="simulist.html">Get Started
+vignette</a> is a great place to start.</p>
+</div>
+<p>First we load in some data that is required for the outbreak
+simulation. Data on epidemiological parameters and distributions are
+read from the {epiparameter} R package.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># create contact distribution (not available from {epiparameter} database)</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>contact_distribution <span class="ot">&lt;-</span> <span class="fu">epiparameter</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">disease =</span> <span class="st">&quot;COVID-19&quot;</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">epi_name =</span> <span class="st">&quot;contact distribution&quot;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">prob_distribution =</span> <span class="fu">create_prob_distribution</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>    <span class="at">prob_distribution =</span> <span class="st">&quot;pois&quot;</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>    <span class="at">prob_distribution_params =</span> <span class="fu">c</span>(<span class="at">mean =</span> <span class="dv">2</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  )</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>)</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; Citation cannot be created as author, year, journal or title is missing</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co"># create infectious period (not available from {epiparameter} database)</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>infectious_period <span class="ot">&lt;-</span> <span class="fu">epiparameter</span>(</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="at">disease =</span> <span class="st">&quot;COVID-19&quot;</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="at">epi_name =</span> <span class="st">&quot;infectious period&quot;</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="at">prob_distribution =</span> <span class="fu">create_prob_distribution</span>(</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>    <span class="at">prob_distribution =</span> <span class="st">&quot;gamma&quot;</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>    <span class="at">prob_distribution_params =</span> <span class="fu">c</span>(<span class="at">shape =</span> <span class="dv">1</span>, <span class="at">scale =</span> <span class="dv">1</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  )</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>)</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; Citation cannot be created as author, year, journal or title is missing</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co"># get onset to hospital admission from {epiparameter} database</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>onset_to_hosp <span class="ot">&lt;-</span> <span class="fu">epiparameter_db</span>(</span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>  <span class="at">disease =</span> <span class="st">&quot;COVID-19&quot;</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>  <span class="at">epi_name =</span> <span class="st">&quot;onset to hospitalisation&quot;</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>  <span class="at">single_epiparameter =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>)</span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; Using Linton N, Kobayashi T, Yang Y, Hayashi K, Akhmetzhanov A, Jung S, Yuan</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; B, Kinoshita R, Nishiura H (2020). &quot;Incubation Period and Other</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; Epidemiological Characteristics of 2019 Novel Coronavirus Infections</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; with Right Truncation: A Statistical Analysis of Publicly Available</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; Case Data.&quot; _Journal of Clinical Medicine_. doi:10.3390/jcm9020538</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; &lt;https://doi.org/10.3390/jcm9020538&gt;.. </span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; To retrieve the citation use the &#39;get_citation&#39; function</span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co"># get onset to death from {epiparameter} database</span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a>onset_to_death <span class="ot">&lt;-</span> <span class="fu">epiparameter_db</span>(</span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a>  <span class="at">disease =</span> <span class="st">&quot;COVID-19&quot;</span>,</span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a>  <span class="at">epi_name =</span> <span class="st">&quot;onset to death&quot;</span>,</span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a>  <span class="at">single_epiparameter =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a>)</span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt; Using Linton N, Kobayashi T, Yang Y, Hayashi K, Akhmetzhanov A, Jung S, Yuan</span></span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt; B, Kinoshita R, Nishiura H (2020). &quot;Incubation Period and Other</span></span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt; Epidemiological Characteristics of 2019 Novel Coronavirus Infections</span></span>
+<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="co">#&gt; with Right Truncation: A Statistical Analysis of Publicly Available</span></span>
+<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a><span class="co">#&gt; Case Data.&quot; _Journal of Clinical Medicine_. doi:10.3390/jcm9020538</span></span>
+<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a><span class="co">#&gt; &lt;https://doi.org/10.3390/jcm9020538&gt;.. </span></span>
+<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a><span class="co">#&gt; To retrieve the citation use the &#39;get_citation&#39; function</span></span></code></pre></div>
+<p>The seed is set to ensure the output of the vignette is consistent.
+When using {simulist}, setting the seed is not required unless you need
+to simulate the same line list multiple times.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>outbreak <span class="ot">&lt;-</span> <span class="fu">sim_outbreak</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="at">contact_distribution =</span> contact_distribution,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">infectious_period =</span> infectious_period,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">prob_infection =</span> <span class="fl">0.5</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">onset_to_hosp =</span> onset_to_hosp,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="at">onset_to_death =</span> onset_to_death</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>linelist <span class="ot">&lt;-</span> outbreak<span class="sc">$</span>linelist</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>contacts <span class="ot">&lt;-</span> outbreak<span class="sc">$</span>contacts</span></code></pre></div>
+</div>
+<div id="removing-a-line-list-column" class="section level2 tabset">
+<h2 class="tabset">Removing a line list column</h2>
+<p>Not every column in the simulated line list may be required for the
+use case at hand. In this example we will remove the
+<code>$ct_value</code> column. For instance, if we wanted to simulate an
+outbreak for which no laboratory testing (e.g Polymerase chain reaction,
+PCR, testing) was available and thus a Cycle threshold (Ct) value would
+not be known for confirmed cases.</p>
+<div id="tidyverse" class="section level3">
+<h3>Tidyverse</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># remove column by name</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>linelist <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>ct_value)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt;    id         case_name case_type sex age date_onset date_admission   outcome</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; 1   1       Rafael Diaz confirmed   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; 2   3   Fabian Griffith confirmed   m  90 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 3   4      Annabelle Vu  probable   f   9 2023-01-01     2023-01-07 recovered</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 4   5          Emily Fu confirmed   f  71 2023-01-01     2023-01-01      died</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; 5   6     Kirsten Barna suspected   f  48 2023-01-02           &lt;NA&gt; recovered</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; 6   7    Rajab el-Badie suspected   m  77 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; 7   8 Lorraina Hofbauer suspected   f  83 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; 8   9      Joseph Wells confirmed   m  56 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; 9  10     Kevin Lacsina suspected   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; 10 14     Lauren Herzog confirmed   f  30 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; 11 16   Aasima el-Latif confirmed   f  16 2023-01-02     2023-01-02 recovered</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; 12 21         Sarah Abo  probable   f  20 2023-01-02           &lt;NA&gt; recovered</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; 13 24    Christian Knox suspected   m  52 2023-01-02           &lt;NA&gt; recovered</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt;    date_outcome date_first_contact date_last_contact</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; 1          &lt;NA&gt;               &lt;NA&gt;              &lt;NA&gt;</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; 2          &lt;NA&gt;         2022-12-31        2023-01-03</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; 3          &lt;NA&gt;         2022-12-29        2023-01-02</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; 4    2023-02-24         2023-01-02        2023-01-07</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; 5          &lt;NA&gt;         2022-12-30        2023-01-03</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; 6          &lt;NA&gt;         2022-12-26        2023-01-02</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; 7          &lt;NA&gt;         2023-01-04        2023-01-07</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; 8          &lt;NA&gt;         2023-01-03        2023-01-05</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt; 9          &lt;NA&gt;         2022-12-31        2023-01-02</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; 10         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; 11         &lt;NA&gt;         2023-01-02        2023-01-03</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; 12         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; 13         &lt;NA&gt;         2023-01-04        2023-01-06</span></span></code></pre></div>
+</div>
+<div id="base-r" class="section level3">
+<h3>Base R</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># remove column by numeric column indexing</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co"># ct_value is column 12 (the last column)</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>linelist[, <span class="sc">-</span><span class="dv">12</span>]</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;    id         case_name case_type sex age date_onset date_admission   outcome</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; 1   1       Rafael Diaz confirmed   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; 2   3   Fabian Griffith confirmed   m  90 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 3   4      Annabelle Vu  probable   f   9 2023-01-01     2023-01-07 recovered</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; 4   5          Emily Fu confirmed   f  71 2023-01-01     2023-01-01      died</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; 5   6     Kirsten Barna suspected   f  48 2023-01-02           &lt;NA&gt; recovered</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; 6   7    Rajab el-Badie suspected   m  77 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; 7   8 Lorraina Hofbauer suspected   f  83 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; 8   9      Joseph Wells confirmed   m  56 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; 9  10     Kevin Lacsina suspected   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; 10 14     Lauren Herzog confirmed   f  30 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; 11 16   Aasima el-Latif confirmed   f  16 2023-01-02     2023-01-02 recovered</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; 12 21         Sarah Abo  probable   f  20 2023-01-02           &lt;NA&gt; recovered</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; 13 24    Christian Knox suspected   m  52 2023-01-02           &lt;NA&gt; recovered</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;    date_outcome date_first_contact date_last_contact</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; 1          &lt;NA&gt;               &lt;NA&gt;              &lt;NA&gt;</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; 2          &lt;NA&gt;         2022-12-31        2023-01-03</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 3          &lt;NA&gt;         2022-12-29        2023-01-02</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; 4    2023-02-24         2023-01-02        2023-01-07</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; 5          &lt;NA&gt;         2022-12-30        2023-01-03</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; 6          &lt;NA&gt;         2022-12-26        2023-01-02</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; 7          &lt;NA&gt;         2023-01-04        2023-01-07</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; 8          &lt;NA&gt;         2023-01-03        2023-01-05</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; 9          &lt;NA&gt;         2022-12-31        2023-01-02</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; 10         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; 11         &lt;NA&gt;         2023-01-02        2023-01-03</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; 12         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; 13         &lt;NA&gt;         2023-01-04        2023-01-06</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co"># remove column by column name</span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a>linelist[, <span class="fu">colnames</span>(linelist) <span class="sc">!=</span> <span class="st">&quot;ct_value&quot;</span>]</span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt;    id         case_name case_type sex age date_onset date_admission   outcome</span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt; 1   1       Rafael Diaz confirmed   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; 2   3   Fabian Griffith confirmed   m  90 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; 3   4      Annabelle Vu  probable   f   9 2023-01-01     2023-01-07 recovered</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; 4   5          Emily Fu confirmed   f  71 2023-01-01     2023-01-01      died</span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; 5   6     Kirsten Barna suspected   f  48 2023-01-02           &lt;NA&gt; recovered</span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt; 6   7    Rajab el-Badie suspected   m  77 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt; 7   8 Lorraina Hofbauer suspected   f  83 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt; 8   9      Joseph Wells confirmed   m  56 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt; 9  10     Kevin Lacsina suspected   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt; 10 14     Lauren Herzog confirmed   f  30 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co">#&gt; 11 16   Aasima el-Latif confirmed   f  16 2023-01-02     2023-01-02 recovered</span></span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt; 12 21         Sarah Abo  probable   f  20 2023-01-02           &lt;NA&gt; recovered</span></span>
+<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a><span class="co">#&gt; 13 24    Christian Knox suspected   m  52 2023-01-02           &lt;NA&gt; recovered</span></span>
+<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co">#&gt;    date_outcome date_first_contact date_last_contact</span></span>
+<span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a><span class="co">#&gt; 1          &lt;NA&gt;               &lt;NA&gt;              &lt;NA&gt;</span></span>
+<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt; 2          &lt;NA&gt;         2022-12-31        2023-01-03</span></span>
+<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="co">#&gt; 3          &lt;NA&gt;         2022-12-29        2023-01-02</span></span>
+<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a><span class="co">#&gt; 4    2023-02-24         2023-01-02        2023-01-07</span></span>
+<span id="cb6-54"><a href="#cb6-54" tabindex="-1"></a><span class="co">#&gt; 5          &lt;NA&gt;         2022-12-30        2023-01-03</span></span>
+<span id="cb6-55"><a href="#cb6-55" tabindex="-1"></a><span class="co">#&gt; 6          &lt;NA&gt;         2022-12-26        2023-01-02</span></span>
+<span id="cb6-56"><a href="#cb6-56" tabindex="-1"></a><span class="co">#&gt; 7          &lt;NA&gt;         2023-01-04        2023-01-07</span></span>
+<span id="cb6-57"><a href="#cb6-57" tabindex="-1"></a><span class="co">#&gt; 8          &lt;NA&gt;         2023-01-03        2023-01-05</span></span>
+<span id="cb6-58"><a href="#cb6-58" tabindex="-1"></a><span class="co">#&gt; 9          &lt;NA&gt;         2022-12-31        2023-01-02</span></span>
+<span id="cb6-59"><a href="#cb6-59" tabindex="-1"></a><span class="co">#&gt; 10         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
+<span id="cb6-60"><a href="#cb6-60" tabindex="-1"></a><span class="co">#&gt; 11         &lt;NA&gt;         2023-01-02        2023-01-03</span></span>
+<span id="cb6-61"><a href="#cb6-61" tabindex="-1"></a><span class="co">#&gt; 12         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
+<span id="cb6-62"><a href="#cb6-62" tabindex="-1"></a><span class="co">#&gt; 13         &lt;NA&gt;         2023-01-04        2023-01-06</span></span>
+<span id="cb6-63"><a href="#cb6-63" tabindex="-1"></a></span>
+<span id="cb6-64"><a href="#cb6-64" tabindex="-1"></a><span class="co"># remove column by assigning it to NULL</span></span>
+<span id="cb6-65"><a href="#cb6-65" tabindex="-1"></a>linelist<span class="sc">$</span>ct_value <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb6-66"><a href="#cb6-66" tabindex="-1"></a>linelist</span>
+<span id="cb6-67"><a href="#cb6-67" tabindex="-1"></a><span class="co">#&gt;    id         case_name case_type sex age date_onset date_admission   outcome</span></span>
+<span id="cb6-68"><a href="#cb6-68" tabindex="-1"></a><span class="co">#&gt; 1   1       Rafael Diaz confirmed   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-69"><a href="#cb6-69" tabindex="-1"></a><span class="co">#&gt; 2   3   Fabian Griffith confirmed   m  90 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-70"><a href="#cb6-70" tabindex="-1"></a><span class="co">#&gt; 3   4      Annabelle Vu  probable   f   9 2023-01-01     2023-01-07 recovered</span></span>
+<span id="cb6-71"><a href="#cb6-71" tabindex="-1"></a><span class="co">#&gt; 4   5          Emily Fu confirmed   f  71 2023-01-01     2023-01-01      died</span></span>
+<span id="cb6-72"><a href="#cb6-72" tabindex="-1"></a><span class="co">#&gt; 5   6     Kirsten Barna suspected   f  48 2023-01-02           &lt;NA&gt; recovered</span></span>
+<span id="cb6-73"><a href="#cb6-73" tabindex="-1"></a><span class="co">#&gt; 6   7    Rajab el-Badie suspected   m  77 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-74"><a href="#cb6-74" tabindex="-1"></a><span class="co">#&gt; 7   8 Lorraina Hofbauer suspected   f  83 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-75"><a href="#cb6-75" tabindex="-1"></a><span class="co">#&gt; 8   9      Joseph Wells confirmed   m  56 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-76"><a href="#cb6-76" tabindex="-1"></a><span class="co">#&gt; 9  10     Kevin Lacsina suspected   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-77"><a href="#cb6-77" tabindex="-1"></a><span class="co">#&gt; 10 14     Lauren Herzog confirmed   f  30 2023-01-01           &lt;NA&gt; recovered</span></span>
+<span id="cb6-78"><a href="#cb6-78" tabindex="-1"></a><span class="co">#&gt; 11 16   Aasima el-Latif confirmed   f  16 2023-01-02     2023-01-02 recovered</span></span>
+<span id="cb6-79"><a href="#cb6-79" tabindex="-1"></a><span class="co">#&gt; 12 21         Sarah Abo  probable   f  20 2023-01-02           &lt;NA&gt; recovered</span></span>
+<span id="cb6-80"><a href="#cb6-80" tabindex="-1"></a><span class="co">#&gt; 13 24    Christian Knox suspected   m  52 2023-01-02           &lt;NA&gt; recovered</span></span>
+<span id="cb6-81"><a href="#cb6-81" tabindex="-1"></a><span class="co">#&gt;    date_outcome date_first_contact date_last_contact</span></span>
+<span id="cb6-82"><a href="#cb6-82" tabindex="-1"></a><span class="co">#&gt; 1          &lt;NA&gt;               &lt;NA&gt;              &lt;NA&gt;</span></span>
+<span id="cb6-83"><a href="#cb6-83" tabindex="-1"></a><span class="co">#&gt; 2          &lt;NA&gt;         2022-12-31        2023-01-03</span></span>
+<span id="cb6-84"><a href="#cb6-84" tabindex="-1"></a><span class="co">#&gt; 3          &lt;NA&gt;         2022-12-29        2023-01-02</span></span>
+<span id="cb6-85"><a href="#cb6-85" tabindex="-1"></a><span class="co">#&gt; 4    2023-02-24         2023-01-02        2023-01-07</span></span>
+<span id="cb6-86"><a href="#cb6-86" tabindex="-1"></a><span class="co">#&gt; 5          &lt;NA&gt;         2022-12-30        2023-01-03</span></span>
+<span id="cb6-87"><a href="#cb6-87" tabindex="-1"></a><span class="co">#&gt; 6          &lt;NA&gt;         2022-12-26        2023-01-02</span></span>
+<span id="cb6-88"><a href="#cb6-88" tabindex="-1"></a><span class="co">#&gt; 7          &lt;NA&gt;         2023-01-04        2023-01-07</span></span>
+<span id="cb6-89"><a href="#cb6-89" tabindex="-1"></a><span class="co">#&gt; 8          &lt;NA&gt;         2023-01-03        2023-01-05</span></span>
+<span id="cb6-90"><a href="#cb6-90" tabindex="-1"></a><span class="co">#&gt; 9          &lt;NA&gt;         2022-12-31        2023-01-02</span></span>
+<span id="cb6-91"><a href="#cb6-91" tabindex="-1"></a><span class="co">#&gt; 10         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
+<span id="cb6-92"><a href="#cb6-92" tabindex="-1"></a><span class="co">#&gt; 11         &lt;NA&gt;         2023-01-02        2023-01-03</span></span>
+<span id="cb6-93"><a href="#cb6-93" tabindex="-1"></a><span class="co">#&gt; 12         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
+<span id="cb6-94"><a href="#cb6-94" tabindex="-1"></a><span class="co">#&gt; 13         &lt;NA&gt;         2023-01-04        2023-01-06</span></span></code></pre></div>
+</div>
+</div>
+<div id="section" class="section level2 unnumbered">
+<h2 class="unnumbered"></h2>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
