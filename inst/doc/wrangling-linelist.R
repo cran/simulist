@@ -60,7 +60,7 @@ contacts <- outbreak$contacts
 
 ## ----rm-ct-col-tidyverse------------------------------------------------------
 # remove column by name
-linelist %>%
+linelist %>% # nolint one_call_pipe_linter
   select(!ct_value)
 
 ## ----rm-ct-col-base-----------------------------------------------------------

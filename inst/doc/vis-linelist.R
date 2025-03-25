@@ -1,7 +1,9 @@
 ## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 5
 )
 
 ## ----setup--------------------------------------------------------------------
@@ -29,11 +31,13 @@ infectious_period <- epiparameter(
   )
 )
 
-# get onset to hospital admission from {epiparameter} database
-onset_to_hosp <- epiparameter_db(
+onset_to_hosp <- epiparameter(
   disease = "COVID-19",
   epi_name = "onset to hospitalisation",
-  single_epiparameter = TRUE
+  prob_distribution = create_prob_distribution(
+    prob_distribution = "lnorm",
+    prob_distribution_params = c(meanlog = 1, sdlog = 0.5)
+  )
 )
 
 # get onset to death from {epiparameter} database
@@ -58,33 +62,40 @@ linelist <- sim_linelist(
 
 ## ----create-incidence---------------------------------------------------------
 # create incidence object
-daily <- incidence(x = linelist, date_index = "date_onset", interval = "daily")
+daily <- incidence(
+  x = linelist,
+  date_index = "date_onset",
+  interval = "daily",
+  complete_dates = TRUE
+)
 
-## ----complete-dates, fig.cap="Daily incidence of cases from symptom onset including days with zero cases.", fig.width = 8, fig.height = 5----
-# impute for days without cases
-daily <- complete_dates(daily)
+## ----plot-daily---------------------------------------------------------------
 plot(daily)
 
-## ----plot-weekly, fig.cap="Weekly incidence of cases from symptom onset", fig.width = 8, fig.height = 5----
+## ----prep-weekly--------------------------------------------------------------
 weekly <- incidence(linelist, date_index = "date_onset", interval = "isoweek")
+
+## ----plot-weekly--------------------------------------------------------------
 plot(weekly)
 
-## ----group-by-sex, fig.cap="Weekly incidence of cases from symptom onset facetted by sex", fig.width = 8, fig.height = 5----
+## ----group-by-sex-------------------------------------------------------------
 weekly <- incidence(
   linelist,
   date_index = "date_onset",
   interval = "isoweek",
   groups = "sex"
 )
+
+## ----plot-group-by-sex--------------------------------------------------------
 plot(weekly)
 
 ## ----reshape-linelist-base-r, eval=FALSE--------------------------------------
-#  # this can also be achieved with the reshape() function but the user interface
-#  # for that function is complicated so here we just create the columns manually
-#  linelist$date_death <- linelist$date_outcome
-#  linelist$date_death[linelist$outcome == "recovered"] <- NA
-#  linelist$date_recovery <- linelist$date_outcome
-#  linelist$date_recovery[linelist$outcome == "died"] <- NA
+# # this can also be achieved with the reshape() function but the user interface
+# # for that function is complicated so here we just create the columns manually
+# linelist$date_death <- linelist$date_outcome
+# linelist$date_death[linelist$outcome == "recovered"] <- NA
+# linelist$date_recovery <- linelist$date_outcome
+# linelist$date_recovery[linelist$outcome == "died"] <- NA
 
 ## ----reshape-linelist-tidyverse, message=FALSE--------------------------------
 library(tidyr)
@@ -93,14 +104,13 @@ linelist <- linelist %>%
   tidyr::pivot_wider(
     names_from = outcome,
     values_from = date_outcome
-  )
-linelist <- linelist %>%
+  ) %>%
   dplyr::rename(
     date_death = died,
     date_recovery = recovered
   )
 
-## ----plot-onset-hospitalisation, fig.cap="Daily incidence of cases from symptom onset and incidence of hospitalisations and deaths.", fig.width = 8, fig.height = 5----
+## ----prep-onset-hospitalisation-----------------------------------------------
 daily <- incidence(
   linelist,
   date_index = c(
@@ -109,9 +119,11 @@ daily <- incidence(
     death = "date_death"
   ),
   interval = "daily",
-  groups = "sex"
+  groups = "sex",
+  complete_dates = TRUE
 )
-daily <- complete_dates(daily)
+
+## ----plot-onset-hospitalisation-----------------------------------------------
 plot(daily)
 
 ## ----contact-distribution-----------------------------------------------------
@@ -149,7 +161,7 @@ epicontacts <- make_epicontacts(
 ## ----print-epicontacts--------------------------------------------------------
 epicontacts
 
-## ----plot-epicontacts, fig.cap="Contact network from infectious disease outbreak. This includes all contacts, i.e. individuals that were infected and not infected"----
+## ----plot-epicontacts---------------------------------------------------------
 plot(epicontacts)
 
 ## ----subset-linelist-base-r---------------------------------------------------
@@ -157,7 +169,7 @@ outbreak$contacts <- outbreak$contacts[outbreak$contacts$was_case == "Y", ]
 
 ## ----subset-linelist-tidyverse------------------------------------------------
 library(dplyr)
-outbreak$contacts <- outbreak$contacts %>%
+outbreak$contacts <- outbreak$contacts %>% # nolint one_call_pipe_linter
   dplyr::filter(was_case == "Y")
 
 ## ----inspect-data-------------------------------------------------------------
@@ -177,6 +189,6 @@ epicontacts <- make_epicontacts(
 ## ----print-cases-epicontacts--------------------------------------------------
 epicontacts
 
-## ----plot-cases-epicontacts, fig.cap="Transmission chain from infectious disease outbreak. This includes only individuals that were infected, including confirmed, probable and suspected cases."----
+## ----plot-cases-epicontacts---------------------------------------------------
 plot(epicontacts)
 

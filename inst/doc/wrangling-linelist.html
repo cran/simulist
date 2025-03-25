@@ -60,7 +60,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -459,133 +459,133 @@ not be known for confirmed cases.</p>
 <div id="tidyverse" class="section level3">
 <h3>Tidyverse</h3>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># remove column by name</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>linelist <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>linelist <span class="sc">%&gt;%</span> <span class="co"># nolint one_call_pipe_linter</span></span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>ct_value)</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt;    id         case_name case_type sex age date_onset date_admission   outcome</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; 1   1       Rafael Diaz confirmed   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; 2   3   Fabian Griffith confirmed   m  90 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 3   4      Annabelle Vu  probable   f   9 2023-01-01     2023-01-07 recovered</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 4   5          Emily Fu confirmed   f  71 2023-01-01     2023-01-01      died</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; 5   6     Kirsten Barna suspected   f  48 2023-01-02           &lt;NA&gt; recovered</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; 6   7    Rajab el-Badie suspected   m  77 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; 7   8 Lorraina Hofbauer suspected   f  83 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; 8   9      Joseph Wells confirmed   m  56 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; 9  10     Kevin Lacsina suspected   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; 10 14     Lauren Herzog confirmed   f  30 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; 11 16   Aasima el-Latif confirmed   f  16 2023-01-02     2023-01-02 recovered</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; 12 21         Sarah Abo  probable   f  20 2023-01-02           &lt;NA&gt; recovered</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; 13 24    Christian Knox suspected   m  52 2023-01-02           &lt;NA&gt; recovered</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt;    date_outcome date_first_contact date_last_contact</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; 1          &lt;NA&gt;               &lt;NA&gt;              &lt;NA&gt;</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; 2          &lt;NA&gt;         2022-12-31        2023-01-03</span></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; 3          &lt;NA&gt;         2022-12-29        2023-01-02</span></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; 4    2023-02-24         2023-01-02        2023-01-07</span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; 5          &lt;NA&gt;         2022-12-30        2023-01-03</span></span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; 6          &lt;NA&gt;         2022-12-26        2023-01-02</span></span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; 7          &lt;NA&gt;         2023-01-04        2023-01-07</span></span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; 8          &lt;NA&gt;         2023-01-03        2023-01-05</span></span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt; 9          &lt;NA&gt;         2022-12-31        2023-01-02</span></span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; 10         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
-<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; 11         &lt;NA&gt;         2023-01-02        2023-01-03</span></span>
-<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; 12         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
-<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; 13         &lt;NA&gt;         2023-01-04        2023-01-06</span></span></code></pre></div>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt;    id             case_name case_type sex age date_onset date_reporting</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; 1   1         Fabian Mrazik confirmed   m  90 2023-01-01     2023-01-01</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; 2   3       Ashley Martinez confirmed   f  71 2023-01-01     2023-01-01</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 3   4                Tia Vu  probable   f  48 2023-01-01     2023-01-01</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 4   5 Abdul Majeed el-Saleh confirmed   m  77 2023-01-01     2023-01-01</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; 5   6        Courtney Flood suspected   f  83 2023-01-02     2023-01-02</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; 6   7          Joseph Jiron suspected   m  56 2023-01-01     2023-01-01</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; 7   8          Kevin Liddle suspected   m  39 2023-01-01     2023-01-01</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; 8   9       Rutaiba el-Raad confirmed   f  68 2023-01-01     2023-01-01</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; 9  10       Jaime Middleton suspected   m   1 2023-01-01     2023-01-01</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; 10 14           Emily Fyffe confirmed   f  16 2023-01-01     2023-01-01</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; 11 16          Miguel Oyebi confirmed   m  54 2023-01-02     2023-01-02</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; 12 21         Katlyn Nelson  probable   f  36 2023-01-02     2023-01-02</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; 13 24       Nicholas Rentie suspected   m  49 2023-01-02     2023-01-02</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt;    date_admission   outcome date_outcome date_first_contact date_last_contact</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; 1            &lt;NA&gt; recovered         &lt;NA&gt;               &lt;NA&gt;              &lt;NA&gt;</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; 2      2023-01-08      died   2023-01-10         2022-12-26        2023-01-06</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; 3            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-30        2023-01-05</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; 4            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-31        2023-01-08</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; 5            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-26        2023-01-04</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; 6            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-28        2023-01-03</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; 7            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-31        2023-01-03</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; 8            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-29        2023-01-01</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt; 9            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-26        2023-01-02</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; 10     2023-01-02 recovered         &lt;NA&gt;         2022-12-30        2023-01-02</span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; 11     2023-01-05 recovered         &lt;NA&gt;         2022-12-30        2023-01-05</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; 12           &lt;NA&gt; recovered         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; 13           &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-28        2023-01-04</span></span></code></pre></div>
 </div>
 <div id="base-r" class="section level3">
 <h3>Base R</h3>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># remove column by numeric column indexing</span></span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co"># ct_value is column 12 (the last column)</span></span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>linelist[, <span class="sc">-</span><span class="dv">12</span>]</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;    id         case_name case_type sex age date_onset date_admission   outcome</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; 1   1       Rafael Diaz confirmed   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; 2   3   Fabian Griffith confirmed   m  90 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 3   4      Annabelle Vu  probable   f   9 2023-01-01     2023-01-07 recovered</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; 4   5          Emily Fu confirmed   f  71 2023-01-01     2023-01-01      died</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; 5   6     Kirsten Barna suspected   f  48 2023-01-02           &lt;NA&gt; recovered</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; 6   7    Rajab el-Badie suspected   m  77 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; 7   8 Lorraina Hofbauer suspected   f  83 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; 8   9      Joseph Wells confirmed   m  56 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; 9  10     Kevin Lacsina suspected   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; 10 14     Lauren Herzog confirmed   f  30 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; 11 16   Aasima el-Latif confirmed   f  16 2023-01-02     2023-01-02 recovered</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; 12 21         Sarah Abo  probable   f  20 2023-01-02           &lt;NA&gt; recovered</span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; 13 24    Christian Knox suspected   m  52 2023-01-02           &lt;NA&gt; recovered</span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;    date_outcome date_first_contact date_last_contact</span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; 1          &lt;NA&gt;               &lt;NA&gt;              &lt;NA&gt;</span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; 2          &lt;NA&gt;         2022-12-31        2023-01-03</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 3          &lt;NA&gt;         2022-12-29        2023-01-02</span></span>
-<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; 4    2023-02-24         2023-01-02        2023-01-07</span></span>
-<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; 5          &lt;NA&gt;         2022-12-30        2023-01-03</span></span>
-<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; 6          &lt;NA&gt;         2022-12-26        2023-01-02</span></span>
-<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; 7          &lt;NA&gt;         2023-01-04        2023-01-07</span></span>
-<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; 8          &lt;NA&gt;         2023-01-03        2023-01-05</span></span>
-<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; 9          &lt;NA&gt;         2022-12-31        2023-01-02</span></span>
-<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; 10         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
-<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; 11         &lt;NA&gt;         2023-01-02        2023-01-03</span></span>
-<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; 12         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
-<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; 13         &lt;NA&gt;         2023-01-04        2023-01-06</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;    id             case_name case_type sex age date_onset date_reporting</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; 1   1         Fabian Mrazik confirmed   m  90 2023-01-01     2023-01-01</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; 2   3       Ashley Martinez confirmed   f  71 2023-01-01     2023-01-01</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 3   4                Tia Vu  probable   f  48 2023-01-01     2023-01-01</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; 4   5 Abdul Majeed el-Saleh confirmed   m  77 2023-01-01     2023-01-01</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; 5   6        Courtney Flood suspected   f  83 2023-01-02     2023-01-02</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; 6   7          Joseph Jiron suspected   m  56 2023-01-01     2023-01-01</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; 7   8          Kevin Liddle suspected   m  39 2023-01-01     2023-01-01</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; 8   9       Rutaiba el-Raad confirmed   f  68 2023-01-01     2023-01-01</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; 9  10       Jaime Middleton suspected   m   1 2023-01-01     2023-01-01</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; 10 14           Emily Fyffe confirmed   f  16 2023-01-01     2023-01-01</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; 11 16          Miguel Oyebi confirmed   m  54 2023-01-02     2023-01-02</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; 12 21         Katlyn Nelson  probable   f  36 2023-01-02     2023-01-02</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; 13 24       Nicholas Rentie suspected   m  49 2023-01-02     2023-01-02</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;    date_admission   outcome date_outcome date_first_contact ct_value</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; 1            &lt;NA&gt; recovered         &lt;NA&gt;               &lt;NA&gt;     21.9</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; 2      2023-01-08      died   2023-01-10         2022-12-26     22.7</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 3            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-30       NA</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; 4            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-31     27.4</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; 5            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-26       NA</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; 6            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-28       NA</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; 7            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-31       NA</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; 8            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-29     24.2</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; 9            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-26       NA</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; 10     2023-01-02 recovered         &lt;NA&gt;         2022-12-30     21.3</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; 11     2023-01-05 recovered         &lt;NA&gt;         2022-12-30     26.0</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; 12           &lt;NA&gt; recovered         &lt;NA&gt;         2023-01-01       NA</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; 13           &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-28       NA</span></span>
 <span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a></span>
 <span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co"># remove column by column name</span></span>
 <span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a>linelist[, <span class="fu">colnames</span>(linelist) <span class="sc">!=</span> <span class="st">&quot;ct_value&quot;</span>]</span>
-<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt;    id         case_name case_type sex age date_onset date_admission   outcome</span></span>
-<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt; 1   1       Rafael Diaz confirmed   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; 2   3   Fabian Griffith confirmed   m  90 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; 3   4      Annabelle Vu  probable   f   9 2023-01-01     2023-01-07 recovered</span></span>
-<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; 4   5          Emily Fu confirmed   f  71 2023-01-01     2023-01-01      died</span></span>
-<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; 5   6     Kirsten Barna suspected   f  48 2023-01-02           &lt;NA&gt; recovered</span></span>
-<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt; 6   7    Rajab el-Badie suspected   m  77 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt; 7   8 Lorraina Hofbauer suspected   f  83 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt; 8   9      Joseph Wells confirmed   m  56 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt; 9  10     Kevin Lacsina suspected   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt; 10 14     Lauren Herzog confirmed   f  30 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co">#&gt; 11 16   Aasima el-Latif confirmed   f  16 2023-01-02     2023-01-02 recovered</span></span>
-<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt; 12 21         Sarah Abo  probable   f  20 2023-01-02           &lt;NA&gt; recovered</span></span>
-<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a><span class="co">#&gt; 13 24    Christian Knox suspected   m  52 2023-01-02           &lt;NA&gt; recovered</span></span>
-<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co">#&gt;    date_outcome date_first_contact date_last_contact</span></span>
-<span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a><span class="co">#&gt; 1          &lt;NA&gt;               &lt;NA&gt;              &lt;NA&gt;</span></span>
-<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt; 2          &lt;NA&gt;         2022-12-31        2023-01-03</span></span>
-<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="co">#&gt; 3          &lt;NA&gt;         2022-12-29        2023-01-02</span></span>
-<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a><span class="co">#&gt; 4    2023-02-24         2023-01-02        2023-01-07</span></span>
-<span id="cb6-54"><a href="#cb6-54" tabindex="-1"></a><span class="co">#&gt; 5          &lt;NA&gt;         2022-12-30        2023-01-03</span></span>
-<span id="cb6-55"><a href="#cb6-55" tabindex="-1"></a><span class="co">#&gt; 6          &lt;NA&gt;         2022-12-26        2023-01-02</span></span>
-<span id="cb6-56"><a href="#cb6-56" tabindex="-1"></a><span class="co">#&gt; 7          &lt;NA&gt;         2023-01-04        2023-01-07</span></span>
-<span id="cb6-57"><a href="#cb6-57" tabindex="-1"></a><span class="co">#&gt; 8          &lt;NA&gt;         2023-01-03        2023-01-05</span></span>
-<span id="cb6-58"><a href="#cb6-58" tabindex="-1"></a><span class="co">#&gt; 9          &lt;NA&gt;         2022-12-31        2023-01-02</span></span>
-<span id="cb6-59"><a href="#cb6-59" tabindex="-1"></a><span class="co">#&gt; 10         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
-<span id="cb6-60"><a href="#cb6-60" tabindex="-1"></a><span class="co">#&gt; 11         &lt;NA&gt;         2023-01-02        2023-01-03</span></span>
-<span id="cb6-61"><a href="#cb6-61" tabindex="-1"></a><span class="co">#&gt; 12         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
-<span id="cb6-62"><a href="#cb6-62" tabindex="-1"></a><span class="co">#&gt; 13         &lt;NA&gt;         2023-01-04        2023-01-06</span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt;    id             case_name case_type sex age date_onset date_reporting</span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt; 1   1         Fabian Mrazik confirmed   m  90 2023-01-01     2023-01-01</span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; 2   3       Ashley Martinez confirmed   f  71 2023-01-01     2023-01-01</span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; 3   4                Tia Vu  probable   f  48 2023-01-01     2023-01-01</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; 4   5 Abdul Majeed el-Saleh confirmed   m  77 2023-01-01     2023-01-01</span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; 5   6        Courtney Flood suspected   f  83 2023-01-02     2023-01-02</span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt; 6   7          Joseph Jiron suspected   m  56 2023-01-01     2023-01-01</span></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt; 7   8          Kevin Liddle suspected   m  39 2023-01-01     2023-01-01</span></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt; 8   9       Rutaiba el-Raad confirmed   f  68 2023-01-01     2023-01-01</span></span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt; 9  10       Jaime Middleton suspected   m   1 2023-01-01     2023-01-01</span></span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt; 10 14           Emily Fyffe confirmed   f  16 2023-01-01     2023-01-01</span></span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co">#&gt; 11 16          Miguel Oyebi confirmed   m  54 2023-01-02     2023-01-02</span></span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt; 12 21         Katlyn Nelson  probable   f  36 2023-01-02     2023-01-02</span></span>
+<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a><span class="co">#&gt; 13 24       Nicholas Rentie suspected   m  49 2023-01-02     2023-01-02</span></span>
+<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co">#&gt;    date_admission   outcome date_outcome date_first_contact date_last_contact</span></span>
+<span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a><span class="co">#&gt; 1            &lt;NA&gt; recovered         &lt;NA&gt;               &lt;NA&gt;              &lt;NA&gt;</span></span>
+<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt; 2      2023-01-08      died   2023-01-10         2022-12-26        2023-01-06</span></span>
+<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="co">#&gt; 3            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-30        2023-01-05</span></span>
+<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a><span class="co">#&gt; 4            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-31        2023-01-08</span></span>
+<span id="cb6-54"><a href="#cb6-54" tabindex="-1"></a><span class="co">#&gt; 5            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-26        2023-01-04</span></span>
+<span id="cb6-55"><a href="#cb6-55" tabindex="-1"></a><span class="co">#&gt; 6            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-28        2023-01-03</span></span>
+<span id="cb6-56"><a href="#cb6-56" tabindex="-1"></a><span class="co">#&gt; 7            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-31        2023-01-03</span></span>
+<span id="cb6-57"><a href="#cb6-57" tabindex="-1"></a><span class="co">#&gt; 8            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-29        2023-01-01</span></span>
+<span id="cb6-58"><a href="#cb6-58" tabindex="-1"></a><span class="co">#&gt; 9            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-26        2023-01-02</span></span>
+<span id="cb6-59"><a href="#cb6-59" tabindex="-1"></a><span class="co">#&gt; 10     2023-01-02 recovered         &lt;NA&gt;         2022-12-30        2023-01-02</span></span>
+<span id="cb6-60"><a href="#cb6-60" tabindex="-1"></a><span class="co">#&gt; 11     2023-01-05 recovered         &lt;NA&gt;         2022-12-30        2023-01-05</span></span>
+<span id="cb6-61"><a href="#cb6-61" tabindex="-1"></a><span class="co">#&gt; 12           &lt;NA&gt; recovered         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
+<span id="cb6-62"><a href="#cb6-62" tabindex="-1"></a><span class="co">#&gt; 13           &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-28        2023-01-04</span></span>
 <span id="cb6-63"><a href="#cb6-63" tabindex="-1"></a></span>
 <span id="cb6-64"><a href="#cb6-64" tabindex="-1"></a><span class="co"># remove column by assigning it to NULL</span></span>
 <span id="cb6-65"><a href="#cb6-65" tabindex="-1"></a>linelist<span class="sc">$</span>ct_value <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
 <span id="cb6-66"><a href="#cb6-66" tabindex="-1"></a>linelist</span>
-<span id="cb6-67"><a href="#cb6-67" tabindex="-1"></a><span class="co">#&gt;    id         case_name case_type sex age date_onset date_admission   outcome</span></span>
-<span id="cb6-68"><a href="#cb6-68" tabindex="-1"></a><span class="co">#&gt; 1   1       Rafael Diaz confirmed   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-69"><a href="#cb6-69" tabindex="-1"></a><span class="co">#&gt; 2   3   Fabian Griffith confirmed   m  90 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-70"><a href="#cb6-70" tabindex="-1"></a><span class="co">#&gt; 3   4      Annabelle Vu  probable   f   9 2023-01-01     2023-01-07 recovered</span></span>
-<span id="cb6-71"><a href="#cb6-71" tabindex="-1"></a><span class="co">#&gt; 4   5          Emily Fu confirmed   f  71 2023-01-01     2023-01-01      died</span></span>
-<span id="cb6-72"><a href="#cb6-72" tabindex="-1"></a><span class="co">#&gt; 5   6     Kirsten Barna suspected   f  48 2023-01-02           &lt;NA&gt; recovered</span></span>
-<span id="cb6-73"><a href="#cb6-73" tabindex="-1"></a><span class="co">#&gt; 6   7    Rajab el-Badie suspected   m  77 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-74"><a href="#cb6-74" tabindex="-1"></a><span class="co">#&gt; 7   8 Lorraina Hofbauer suspected   f  83 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-75"><a href="#cb6-75" tabindex="-1"></a><span class="co">#&gt; 8   9      Joseph Wells confirmed   m  56 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-76"><a href="#cb6-76" tabindex="-1"></a><span class="co">#&gt; 9  10     Kevin Lacsina suspected   m  39 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-77"><a href="#cb6-77" tabindex="-1"></a><span class="co">#&gt; 10 14     Lauren Herzog confirmed   f  30 2023-01-01           &lt;NA&gt; recovered</span></span>
-<span id="cb6-78"><a href="#cb6-78" tabindex="-1"></a><span class="co">#&gt; 11 16   Aasima el-Latif confirmed   f  16 2023-01-02     2023-01-02 recovered</span></span>
-<span id="cb6-79"><a href="#cb6-79" tabindex="-1"></a><span class="co">#&gt; 12 21         Sarah Abo  probable   f  20 2023-01-02           &lt;NA&gt; recovered</span></span>
-<span id="cb6-80"><a href="#cb6-80" tabindex="-1"></a><span class="co">#&gt; 13 24    Christian Knox suspected   m  52 2023-01-02           &lt;NA&gt; recovered</span></span>
-<span id="cb6-81"><a href="#cb6-81" tabindex="-1"></a><span class="co">#&gt;    date_outcome date_first_contact date_last_contact</span></span>
-<span id="cb6-82"><a href="#cb6-82" tabindex="-1"></a><span class="co">#&gt; 1          &lt;NA&gt;               &lt;NA&gt;              &lt;NA&gt;</span></span>
-<span id="cb6-83"><a href="#cb6-83" tabindex="-1"></a><span class="co">#&gt; 2          &lt;NA&gt;         2022-12-31        2023-01-03</span></span>
-<span id="cb6-84"><a href="#cb6-84" tabindex="-1"></a><span class="co">#&gt; 3          &lt;NA&gt;         2022-12-29        2023-01-02</span></span>
-<span id="cb6-85"><a href="#cb6-85" tabindex="-1"></a><span class="co">#&gt; 4    2023-02-24         2023-01-02        2023-01-07</span></span>
-<span id="cb6-86"><a href="#cb6-86" tabindex="-1"></a><span class="co">#&gt; 5          &lt;NA&gt;         2022-12-30        2023-01-03</span></span>
-<span id="cb6-87"><a href="#cb6-87" tabindex="-1"></a><span class="co">#&gt; 6          &lt;NA&gt;         2022-12-26        2023-01-02</span></span>
-<span id="cb6-88"><a href="#cb6-88" tabindex="-1"></a><span class="co">#&gt; 7          &lt;NA&gt;         2023-01-04        2023-01-07</span></span>
-<span id="cb6-89"><a href="#cb6-89" tabindex="-1"></a><span class="co">#&gt; 8          &lt;NA&gt;         2023-01-03        2023-01-05</span></span>
-<span id="cb6-90"><a href="#cb6-90" tabindex="-1"></a><span class="co">#&gt; 9          &lt;NA&gt;         2022-12-31        2023-01-02</span></span>
-<span id="cb6-91"><a href="#cb6-91" tabindex="-1"></a><span class="co">#&gt; 10         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
-<span id="cb6-92"><a href="#cb6-92" tabindex="-1"></a><span class="co">#&gt; 11         &lt;NA&gt;         2023-01-02        2023-01-03</span></span>
-<span id="cb6-93"><a href="#cb6-93" tabindex="-1"></a><span class="co">#&gt; 12         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
-<span id="cb6-94"><a href="#cb6-94" tabindex="-1"></a><span class="co">#&gt; 13         &lt;NA&gt;         2023-01-04        2023-01-06</span></span></code></pre></div>
+<span id="cb6-67"><a href="#cb6-67" tabindex="-1"></a><span class="co">#&gt;    id             case_name case_type sex age date_onset date_reporting</span></span>
+<span id="cb6-68"><a href="#cb6-68" tabindex="-1"></a><span class="co">#&gt; 1   1         Fabian Mrazik confirmed   m  90 2023-01-01     2023-01-01</span></span>
+<span id="cb6-69"><a href="#cb6-69" tabindex="-1"></a><span class="co">#&gt; 2   3       Ashley Martinez confirmed   f  71 2023-01-01     2023-01-01</span></span>
+<span id="cb6-70"><a href="#cb6-70" tabindex="-1"></a><span class="co">#&gt; 3   4                Tia Vu  probable   f  48 2023-01-01     2023-01-01</span></span>
+<span id="cb6-71"><a href="#cb6-71" tabindex="-1"></a><span class="co">#&gt; 4   5 Abdul Majeed el-Saleh confirmed   m  77 2023-01-01     2023-01-01</span></span>
+<span id="cb6-72"><a href="#cb6-72" tabindex="-1"></a><span class="co">#&gt; 5   6        Courtney Flood suspected   f  83 2023-01-02     2023-01-02</span></span>
+<span id="cb6-73"><a href="#cb6-73" tabindex="-1"></a><span class="co">#&gt; 6   7          Joseph Jiron suspected   m  56 2023-01-01     2023-01-01</span></span>
+<span id="cb6-74"><a href="#cb6-74" tabindex="-1"></a><span class="co">#&gt; 7   8          Kevin Liddle suspected   m  39 2023-01-01     2023-01-01</span></span>
+<span id="cb6-75"><a href="#cb6-75" tabindex="-1"></a><span class="co">#&gt; 8   9       Rutaiba el-Raad confirmed   f  68 2023-01-01     2023-01-01</span></span>
+<span id="cb6-76"><a href="#cb6-76" tabindex="-1"></a><span class="co">#&gt; 9  10       Jaime Middleton suspected   m   1 2023-01-01     2023-01-01</span></span>
+<span id="cb6-77"><a href="#cb6-77" tabindex="-1"></a><span class="co">#&gt; 10 14           Emily Fyffe confirmed   f  16 2023-01-01     2023-01-01</span></span>
+<span id="cb6-78"><a href="#cb6-78" tabindex="-1"></a><span class="co">#&gt; 11 16          Miguel Oyebi confirmed   m  54 2023-01-02     2023-01-02</span></span>
+<span id="cb6-79"><a href="#cb6-79" tabindex="-1"></a><span class="co">#&gt; 12 21         Katlyn Nelson  probable   f  36 2023-01-02     2023-01-02</span></span>
+<span id="cb6-80"><a href="#cb6-80" tabindex="-1"></a><span class="co">#&gt; 13 24       Nicholas Rentie suspected   m  49 2023-01-02     2023-01-02</span></span>
+<span id="cb6-81"><a href="#cb6-81" tabindex="-1"></a><span class="co">#&gt;    date_admission   outcome date_outcome date_first_contact date_last_contact</span></span>
+<span id="cb6-82"><a href="#cb6-82" tabindex="-1"></a><span class="co">#&gt; 1            &lt;NA&gt; recovered         &lt;NA&gt;               &lt;NA&gt;              &lt;NA&gt;</span></span>
+<span id="cb6-83"><a href="#cb6-83" tabindex="-1"></a><span class="co">#&gt; 2      2023-01-08      died   2023-01-10         2022-12-26        2023-01-06</span></span>
+<span id="cb6-84"><a href="#cb6-84" tabindex="-1"></a><span class="co">#&gt; 3            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-30        2023-01-05</span></span>
+<span id="cb6-85"><a href="#cb6-85" tabindex="-1"></a><span class="co">#&gt; 4            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-31        2023-01-08</span></span>
+<span id="cb6-86"><a href="#cb6-86" tabindex="-1"></a><span class="co">#&gt; 5            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-26        2023-01-04</span></span>
+<span id="cb6-87"><a href="#cb6-87" tabindex="-1"></a><span class="co">#&gt; 6            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-28        2023-01-03</span></span>
+<span id="cb6-88"><a href="#cb6-88" tabindex="-1"></a><span class="co">#&gt; 7            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-31        2023-01-03</span></span>
+<span id="cb6-89"><a href="#cb6-89" tabindex="-1"></a><span class="co">#&gt; 8            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-29        2023-01-01</span></span>
+<span id="cb6-90"><a href="#cb6-90" tabindex="-1"></a><span class="co">#&gt; 9            &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-26        2023-01-02</span></span>
+<span id="cb6-91"><a href="#cb6-91" tabindex="-1"></a><span class="co">#&gt; 10     2023-01-02 recovered         &lt;NA&gt;         2022-12-30        2023-01-02</span></span>
+<span id="cb6-92"><a href="#cb6-92" tabindex="-1"></a><span class="co">#&gt; 11     2023-01-05 recovered         &lt;NA&gt;         2022-12-30        2023-01-05</span></span>
+<span id="cb6-93"><a href="#cb6-93" tabindex="-1"></a><span class="co">#&gt; 12           &lt;NA&gt; recovered         &lt;NA&gt;         2023-01-01        2023-01-03</span></span>
+<span id="cb6-94"><a href="#cb6-94" tabindex="-1"></a><span class="co">#&gt; 13           &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-28        2023-01-04</span></span></code></pre></div>
 </div>
 </div>
 <div id="section" class="section level2 unnumbered">

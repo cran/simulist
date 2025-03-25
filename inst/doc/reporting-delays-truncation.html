@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Reporting delays and right-truncation of line list data</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Reporting delays and right-truncation of
+line list data</h1>
+
+
+
+<div class="alert alert-info">
+<p>If you are unfamiliar with the {simulist} package or the
+<code>sim_linelist()</code> function <a href="simulist.html">Get Started
+vignette</a> is a great place to start.</p>
+</div>
+<p>This vignette covers reporting delays in line list data, how to use
+{simulist} to produce line list data with a delay between symptom onset
+and reporting, explains right truncation in outbreak data sets and shows
+how to use the <code>truncate_linelist()</code> function in {simulist}
+to augment a simulated line list to resemble real-time outbreak
+data.</p>
+<div id="reporting-delays" class="section level2">
+<h2>Reporting delays</h2>
+<p>Reporting delays in line list data during an infectious disease
+outbreak refer to the time lag between when an event (e.g., infection,
+symptom onset, or hospitalisation) occurs and when it is officially
+recorded or reported. These delays can arise from factors like
+diagnostic testing turnaround times, administrative processing, or
+delayed healthcare-seeking behaviour. In line list data sets, these
+delays are captured as separate times/dates for different event types,
+such as the dates of symptom onset, specimen collection, laboratory
+confirmation, or case reporting. For each case, the delay is the
+difference between these times/dates, allowing researchers to quantify
+and adjust for reporting delays when analysing outbreak dynamics.
+Accurate recording of these dates is crucial for reconstructing the
+epidemic curve and assessing the timeliness of public health
+responses.</p>
+<p>In {simulist}, <code>sim_linelist()</code> outputs a line list with a
+date of reporting (<code>$date_reporting</code> column), which by
+default will be identical to the date of symptom onset
+(<code>$date_onset</code>). However, it is possible to parameterise a
+reporting delay that can be used by <code>sim_linelist()</code> to
+simulate a delay between symptom onset and reporting. In {simulist} we
+assume that the reporting delay is the delay between symptom onset and
+it being reported, it does not reflect reporting of hospitalisation or
+outcome times.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(simulist)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(epiparameter)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt; Attaching package: &#39;dplyr&#39;</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; The following objects are masked from &#39;package:stats&#39;:</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt;     filter, lag</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt; The following objects are masked from &#39;package:base&#39;:</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="fu">library</span>(incidence2)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co">#&gt; Loading required package: grates</span></span></code></pre></div>
+<p>First we load the required delay distributions using the
+{epiparameter} package.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>contact_distribution <span class="ot">&lt;-</span> <span class="fu">epiparameter</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">disease =</span> <span class="st">&quot;COVID-19&quot;</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">epi_name =</span> <span class="st">&quot;contact distribution&quot;</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">prob_distribution =</span> <span class="fu">create_prob_distribution</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>    <span class="at">prob_distribution =</span> <span class="st">&quot;pois&quot;</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>    <span class="at">prob_distribution_params =</span> <span class="fu">c</span>(<span class="at">mean =</span> <span class="dv">2</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  )</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; Citation cannot be created as author, year, journal or title is missing</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>infectious_period <span class="ot">&lt;-</span> <span class="fu">epiparameter</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="at">disease =</span> <span class="st">&quot;COVID-19&quot;</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="at">epi_name =</span> <span class="st">&quot;infectious period&quot;</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="at">prob_distribution =</span> <span class="fu">create_prob_distribution</span>(</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>    <span class="at">prob_distribution =</span> <span class="st">&quot;gamma&quot;</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>    <span class="at">prob_distribution_params =</span> <span class="fu">c</span>(<span class="at">shape =</span> <span class="dv">3</span>, <span class="at">scale =</span> <span class="dv">2</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  )</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>)</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; Citation cannot be created as author, year, journal or title is missing</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>onset_to_hosp <span class="ot">&lt;-</span> <span class="fu">epiparameter</span>(</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="at">disease =</span> <span class="st">&quot;COVID-19&quot;</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="at">epi_name =</span> <span class="st">&quot;onset to hospitalisation&quot;</span>,</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>  <span class="at">prob_distribution =</span> <span class="fu">create_prob_distribution</span>(</span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>    <span class="at">prob_distribution =</span> <span class="st">&quot;lnorm&quot;</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>    <span class="at">prob_distribution_params =</span> <span class="fu">c</span>(<span class="at">meanlog =</span> <span class="dv">1</span>, <span class="at">sdlog =</span> <span class="fl">0.5</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>  )</span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>)</span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; Citation cannot be created as author, year, journal or title is missing</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co"># get onset to death from {epiparameter} database</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>onset_to_death <span class="ot">&lt;-</span> <span class="fu">epiparameter_db</span>(</span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>  <span class="at">disease =</span> <span class="st">&quot;COVID-19&quot;</span>,</span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>  <span class="at">epi_name =</span> <span class="st">&quot;onset to death&quot;</span>,</span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a>  <span class="at">single_epiparameter =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a>)</span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; Using Linton N, Kobayashi T, Yang Y, Hayashi K, Akhmetzhanov A, Jung S, Yuan</span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; B, Kinoshita R, Nishiura H (2020). &quot;Incubation Period and Other</span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt; Epidemiological Characteristics of 2019 Novel Coronavirus Infections</span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; with Right Truncation: A Statistical Analysis of Publicly Available</span></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt; Case Data.&quot; _Journal of Clinical Medicine_. doi:10.3390/jcm9020538</span></span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt; &lt;https://doi.org/10.3390/jcm9020538&gt;.. </span></span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt; To retrieve the citation use the &#39;get_citation&#39; function</span></span></code></pre></div>
+<p>Setting the seed ensures we have the same output each time the
+vignette is rendered. When using {simulist}, setting the seed is not
+required unless you need to simulate the same line list multiple
+times.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span></code></pre></div>
+<p>Using a simple line list simulation without specifying a reporting
+delay will produce reporting times identical to symptom onset times:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>linelist <span class="ot">&lt;-</span> <span class="fu">sim_linelist</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="at">contact_distribution =</span> contact_distribution,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">infectious_period =</span> infectious_period,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">prob_infection =</span> <span class="fl">0.5</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">onset_to_hosp =</span> onset_to_hosp,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="at">onset_to_death =</span> onset_to_death</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="fu">identical</span>(linelist<span class="sc">$</span>date_onset, linelist<span class="sc">$</span>date_reporting)</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<p>The reporting delay can be specified as a (random) number generating
+function to the <code>reporting_delay</code> argument in
+<code>sim_linelist()</code>.</p>
+<p>In this example we assume the reporting delays are distributed
+according to a lognormal distribution with parameters:
+<code>meanlog = 1</code> and <code>sdlog = 1</code> (or a mean of
+approximately 4.5 days and standard deviation of 5.9 days).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>linelist <span class="ot">&lt;-</span> <span class="fu">sim_linelist</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">contact_distribution =</span> contact_distribution,</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">infectious_period =</span> infectious_period,</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="at">prob_infection =</span> <span class="fl">0.5</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="at">onset_to_hosp =</span> onset_to_hosp,</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="at">onset_to_death =</span> onset_to_death,</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="at">reporting_delay =</span> <span class="cf">function</span>(x) <span class="fu">rlnorm</span>(<span class="at">n =</span> x, <span class="at">meanlog =</span> <span class="dv">1</span>, <span class="at">sdlog =</span> <span class="dv">1</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>)</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="fu">head</span>(linelist)</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;   id            case_name case_type sex age date_onset date_reporting</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; 1  1       Yoonus al-Azam suspected   m  51 2023-01-01     2023-01-07</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; 2  2       Kristina Clark confirmed   f  53 2023-01-04     2023-01-06</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; 3  3         Karen Meehan confirmed   f  16 2023-01-05     2023-01-20</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; 4  4 Ritika Brandenburger suspected   f  41 2023-01-05     2023-01-09</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; 5  5       Steven Kaliski confirmed   m   4 2023-01-04     2023-01-09</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; 6  6          Keely Atene suspected   f  68 2023-01-05     2023-01-12</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt;   date_admission   outcome date_outcome date_first_contact date_last_contact</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; 1     2023-01-03      died   2023-01-26               &lt;NA&gt;              &lt;NA&gt;</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; 2           &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-28        2023-01-03</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; 3           &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-29        2023-01-06</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; 4           &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-31        2023-01-05</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; 5           &lt;NA&gt; recovered         &lt;NA&gt;         2023-01-02        2023-01-05</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; 6           &lt;NA&gt; recovered         &lt;NA&gt;         2023-01-02        2023-01-06</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt;   ct_value</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; 1       NA</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; 2     26.1</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt; 3     26.6</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; 4       NA</span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; 5     25.0</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; 6       NA</span></span></code></pre></div>
+<p>Here from the first 6 rows of the line list you can see differences
+between the <code>$date_onset</code> column and the
+<code>$date_reporting</code> column.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>tidy_linelist <span class="ot">&lt;-</span> linelist <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">&quot;date_onset&quot;</span>, <span class="st">&quot;date_reporting&quot;</span>, <span class="st">&quot;date_admission&quot;</span>, <span class="st">&quot;date_outcome&quot;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ordering_value =</span> <span class="fu">ifelse</span>(name <span class="sc">==</span> <span class="st">&quot;date_onset&quot;</span>, value, <span class="cn">NA</span>)) <span class="sc">%&gt;%</span> <span class="co"># nolint consecutive_mutate_linter</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">case_name =</span> <span class="fu">reorder</span>(case_name, ordering_value, min, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="co"># nolint consecutive_mutate_linter</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> tidy_linelist) <span class="sc">+</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="fu">geom_line</span>(</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">y =</span> case_name),</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.25</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>      <span class="at">x =</span> value,</span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>      <span class="at">y =</span> case_name,</span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>      <span class="at">shape =</span> name,</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>      <span class="at">col =</span> name</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>    ), <span class="at">size =</span> <span class="dv">2</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">name =</span> <span class="st">&quot;Event date&quot;</span>, <span class="at">date_breaks =</span> <span class="st">&quot;week&quot;</span>) <span class="sc">+</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>  <span class="fu">scale_y_discrete</span>(<span class="at">name =</span> <span class="st">&quot;Case name&quot;</span>) <span class="sc">+</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(</span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">&quot;Set1&quot;</span>,</span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">&quot;Event type&quot;</span>,</span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Date Admission&quot;</span>, <span class="st">&quot;Date Onset&quot;</span>, <span class="st">&quot;Date Outcome&quot;</span>, <span class="st">&quot;Date Reporting&quot;</span>)</span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(</span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">&quot;Event type&quot;</span>,</span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">c</span>(</span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a>      <span class="st">&quot;Date Admission&quot;</span>, <span class="st">&quot;Date Onset&quot;</span>, <span class="st">&quot;Date Outcome&quot;</span>, <span class="st">&quot;Date Reporting&quot;</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a>    ),</span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">18</span>)</span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>, <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>))</span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; Warning: Removed 1519 rows containing missing values or values outside the scale range</span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; (`geom_line()`).</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; Warning: Removed 1519 rows containing missing values or values outside the scale range</span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; (`geom_point()`).</span></span></code></pre></div>
+<p>&lt;img
+src=“/tmp/RtmpbTSW6h/Rbuild1864d1f2d4375/simulist/vignettes/reporting-delays-truncation_files/figure-html/plot-linelist-events-1.png”
+alt=“A dot plot with the event dates in the line list plotted a points
+on the figure, connected by horizontal lines. One row in the dot plot
+corresponds to one case (i.e. one row in the line list). The y-axis
+label is”Case name”, and the x-axis label is “Event date”. The event
+types are “Date admission” (red square), “Date Onset” (blue circle),
+“Date Outcome” (green triangle), and “Date Reporting” (purple diamond).
+The plot shows the distribution of delay times between each event for
+each individual in the line list, with the y-axis order by earliest date
+of symptom onset at the bottom.” /&gt;</p>
+<p>If we plot the difference between the date of symptom onset and
+reporting then, as expected, the distribution is roughly lognormally
+distributed.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> linelist) <span class="sc">+</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.numeric</span>(date_reporting <span class="sc">-</span> date_onset)),</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>    <span class="at">binwidth =</span> <span class="dv">2</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>    <span class="at">name =</span> <span class="fu">paste0</span>(</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>      <span class="st">&quot;Reporting delay (&quot;</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>      <span class="fu">attr</span>(linelist<span class="sc">$</span>date_reporting <span class="sc">-</span> linelist<span class="sc">$</span>date_onset, <span class="st">&quot;units&quot;</span>),</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>      <span class="st">&quot;)&quot;</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>    )</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title.y =</span> <span class="fu">element_blank</span>())</span></code></pre></div>
+<p><img src="data:image/png;base64,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" alt="The distribution of reporting delays from a line list plotted as a histogram. The y-axis is the count, and the x-axis is the reporting delay in days. Most of the histogram weight is around 5 and there a tail to the distribution (left-skewed) with a small number of values above 40. The histogram looks approximately lognormally distributed." /></p>
+<p>If instead of a variable reporting delay you want to simulate a fixed
+reporting delay, for example, the date of reporting is always 5 days
+after the date of symptom onset, then a different function can be
+supplied. One option is to set the parameter that controls the variance
+of the probability distribution to zero (in the case of the lognormal
+distribution, setting <code>sdlog = 0</code>), but a simpler and more
+readable option would be to give a number generating function that
+always returned 5.</p>
+<p>We once again simulate to produce a line list with a fixed reporting
+delay.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>linelist <span class="ot">&lt;-</span> <span class="fu">sim_linelist</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">contact_distribution =</span> contact_distribution,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">infectious_period =</span> infectious_period,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">prob_infection =</span> <span class="fl">0.5</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">onset_to_hosp =</span> onset_to_hosp,</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">onset_to_death =</span> onset_to_death,</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">reporting_delay =</span> <span class="cf">function</span>(x) <span class="fu">rep</span>(<span class="dv">5</span>, <span class="at">times =</span> x)</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>)</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="fu">head</span>(linelist)</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt;   id          case_name case_type sex age date_onset date_reporting</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; 1  1       Caleb Froome confirmed   m  47 2023-01-01     2023-01-06</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; 2  2    Zubair el-Kalil  probable   m  41 2023-01-07     2023-01-12</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; 3  3   Cameron Williams  probable   m  79 2023-01-09     2023-01-14</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; 4  4      Aiyana Garcia confirmed   f  70 2023-01-10     2023-01-15</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt; 5  6 Miguel Line-Torres suspected   m  50 2023-01-10     2023-01-15</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; 6  7       Teagan Dixon confirmed   f  80 2023-01-10     2023-01-15</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt;   date_admission   outcome date_outcome date_first_contact date_last_contact</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt; 1     2023-01-05      died   2023-01-26               &lt;NA&gt;              &lt;NA&gt;</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt; 2           &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-26        2023-01-02</span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt; 3           &lt;NA&gt; recovered         &lt;NA&gt;         2023-01-03        2023-01-11</span></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt; 4           &lt;NA&gt; recovered         &lt;NA&gt;         2023-01-03        2023-01-10</span></span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt; 5           &lt;NA&gt; recovered         &lt;NA&gt;         2023-01-07        2023-01-11</span></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt; 6     2023-01-13      died   2023-01-30         2023-01-05        2023-01-10</span></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt;   ct_value</span></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co">#&gt; 1     23.6</span></span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a><span class="co">#&gt; 2       NA</span></span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="co">#&gt; 3       NA</span></span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a><span class="co">#&gt; 4     28.2</span></span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a><span class="co">#&gt; 5       NA</span></span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a><span class="co">#&gt; 6     26.9</span></span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a>linelist<span class="sc">$</span>date_reporting <span class="sc">-</span> linelist<span class="sc">$</span>date_onset</span>
+<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a><span class="co">#&gt; Time differences in days</span></span>
+<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a><span class="co">#&gt;   [1] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a><span class="co">#&gt;  [38] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a><span class="co">#&gt;  [75] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a><span class="co">#&gt; [112] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a><span class="co">#&gt; [149] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a><span class="co">#&gt; [186] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-39"><a href="#cb8-39" tabindex="-1"></a><span class="co">#&gt; [223] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-40"><a href="#cb8-40" tabindex="-1"></a><span class="co">#&gt; [260] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-41"><a href="#cb8-41" tabindex="-1"></a><span class="co">#&gt; [297] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-42"><a href="#cb8-42" tabindex="-1"></a><span class="co">#&gt; [334] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-43"><a href="#cb8-43" tabindex="-1"></a><span class="co">#&gt; [371] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-44"><a href="#cb8-44" tabindex="-1"></a><span class="co">#&gt; [408] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-45"><a href="#cb8-45" tabindex="-1"></a><span class="co">#&gt; [445] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-46"><a href="#cb8-46" tabindex="-1"></a><span class="co">#&gt; [482] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span>
+<span id="cb8-47"><a href="#cb8-47" tabindex="-1"></a><span class="co">#&gt; [519] 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5</span></span></code></pre></div>
+</div>
+<div id="truncation" class="section level2">
+<h2>Truncation</h2>
+<p>Right truncation in infectious disease data occurs when only
+individuals who have experienced a specific event by a certain time can
+be included in the linelist. This leads to an underestimate of recent
+cases or death, and is especially relevant for ongoing outbreaks where
+recent cases might not have been recorded. It can also happen if cases
+are no longer recorded after a certain point in time.</p>
+<p>Right-truncated outbreak data, in particular line list data, can give
+the impression that the incidence is decreasing (<span class="math inline">\(R\)</span> &lt; 1), however this can be an
+artefact resulting from the fact the data is right-truncated, and the
+outbreak can be stable or growing.</p>
+<p>By default {simulist} simulates an outbreak from start to finish.
+Therefore, the line list or contact data contain all cases and outcomes.
+In order to get data that is more representative of ongoing outbreak
+dynamics where recent cases are not yet recorded and may be revised
+upwards in the future the <code>truncate_linelist()</code> function can
+be applied.</p>
+<p>Re-simulating a simple line list using <code>sim_linelist()</code>
+with a lognormal reporting delay with <code>meanlog = 2</code> and
+<code>sdlog = 0.5</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># set seed to produce small line list</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>linelist <span class="ot">&lt;-</span> <span class="fu">sim_linelist</span>(</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="at">contact_distribution =</span> contact_distribution,</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="at">infectious_period =</span> infectious_period,</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  <span class="at">prob_infection =</span> <span class="fl">0.5</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="at">onset_to_hosp =</span> onset_to_hosp,</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="at">onset_to_death =</span> onset_to_death,</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="at">reporting_delay =</span> <span class="cf">function</span>(x) <span class="fu">rlnorm</span>(<span class="at">n =</span> x, <span class="at">meanlog =</span> <span class="dv">2</span>, <span class="at">sdlog =</span> <span class="fl">0.5</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>)</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co"># first 6 rows of linelist</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="fu">head</span>(linelist)</span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt;   id          case_name case_type sex age date_onset date_reporting</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; 1  1 Daiveante Labarrie confirmed   m  59 2023-01-01     2023-01-05</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; 2  2       Phayd Garcia confirmed   m   3 2023-01-07     2023-01-13</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; 3  3  Jenifer Castaneda suspected   f  53 2023-01-01     2023-01-07</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; 4  8      Asya Woolfolk confirmed   f  42 2023-01-14     2023-01-25</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; 5  9 Amaani el-Abdullah  probable   f  73 2023-01-03     2023-01-08</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; 6 10       Bella Nguyen confirmed   f  89 2023-01-03     2023-01-11</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt;   date_admission   outcome date_outcome date_first_contact date_last_contact</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt; 1     2023-01-05 recovered         &lt;NA&gt;               &lt;NA&gt;              &lt;NA&gt;</span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt; 2           &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-27        2023-01-06</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; 3           &lt;NA&gt; recovered         &lt;NA&gt;         2023-01-01        2023-01-04</span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; 4           &lt;NA&gt; recovered         &lt;NA&gt;         2023-01-07        2023-01-11</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt; 5           &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-25        2023-01-04</span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt; 6           &lt;NA&gt; recovered         &lt;NA&gt;         2022-12-30        2023-01-02</span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt;   ct_value</span></span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt; 1     22.3</span></span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt; 2     27.4</span></span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="co">#&gt; 3       NA</span></span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; 4     28.0</span></span>
+<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a><span class="co">#&gt; 5       NA</span></span>
+<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a><span class="co">#&gt; 6     26.9</span></span></code></pre></div>
+<p>The <em>truncation time</em> is the time/date at which we want to
+take a snapshot of the line list and see what it would have looked like
+on that day (i.e. real-time during the outbreak). By default
+<code>truncate_linelist()</code> will truncate from 14 days before the
+end of the outbreak (defined as the maximum date in the line list).</p>
+<div class="alert alert-primary">
+<p>Here we define the time between the latest, or user-specified date,
+and the time point at which data is truncated as the <em>truncation
+point</em>.</p>
+<p>In the plot below we show the <em>truncation time</em> as a vertical
+line. If the date of reporting falls after the truncation time, then the
+case is removed from the line list, if it falls before the date of
+reporting but after the hospital admission and/or outcome date they are
+set to <code>NA</code>.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>tidy_linelist <span class="ot">&lt;-</span> linelist <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">&quot;date_onset&quot;</span>, <span class="st">&quot;date_reporting&quot;</span>, <span class="st">&quot;date_admission&quot;</span>, <span class="st">&quot;date_outcome&quot;</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ordering_value =</span> <span class="fu">ifelse</span>(name <span class="sc">==</span> <span class="st">&quot;date_onset&quot;</span>, value, <span class="cn">NA</span>)) <span class="sc">%&gt;%</span> <span class="co"># nolint consecutive_mutate_linter</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">case_name =</span> <span class="fu">reorder</span>(case_name, ordering_value, min, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="co"># nolint consecutive_mutate_linter</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>truncation_day <span class="ot">&lt;-</span> <span class="dv">14</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>trunc_date <span class="ot">&lt;-</span> <span class="fu">max</span>(tidy_linelist<span class="sc">$</span>value, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">-</span> truncation_day</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> tidy_linelist) <span class="sc">+</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="fu">geom_line</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">y =</span> case_name),</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.25</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>    <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>      <span class="at">x =</span> value,</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>      <span class="at">y =</span> case_name,</span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>      <span class="at">shape =</span> name,</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>      <span class="at">col =</span> name</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>    ),</span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">2</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> trunc_date, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">name =</span> <span class="st">&quot;Event date&quot;</span>, <span class="at">date_breaks =</span> <span class="st">&quot;2 week&quot;</span>) <span class="sc">+</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>  <span class="fu">scale_y_discrete</span>(<span class="at">name =</span> <span class="st">&quot;Case name&quot;</span>) <span class="sc">+</span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(</span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">&quot;Set1&quot;</span>,</span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">&quot;Event type&quot;</span>,</span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Date Admission&quot;</span>, <span class="st">&quot;Date Onset&quot;</span>, <span class="st">&quot;Date Outcome&quot;</span>, <span class="st">&quot;Date Reporting&quot;</span>)</span>
+<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(</span>
+<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">&quot;Event type&quot;</span>,</span>
+<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">c</span>(</span>
+<span id="cb11-26"><a href="#cb11-26" tabindex="-1"></a>      <span class="st">&quot;Date Admission&quot;</span>, <span class="st">&quot;Date Onset&quot;</span>, <span class="st">&quot;Date Outcome&quot;</span>, <span class="st">&quot;Date Reporting&quot;</span></span>
+<span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a>    ),</span>
+<span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">18</span>)</span>
+<span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-30"><a href="#cb11-30" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb11-31"><a href="#cb11-31" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>, <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>))</span>
+<span id="cb11-32"><a href="#cb11-32" tabindex="-1"></a><span class="co">#&gt; Warning: Removed 22 rows containing missing values or values outside the scale range</span></span>
+<span id="cb11-33"><a href="#cb11-33" tabindex="-1"></a><span class="co">#&gt; (`geom_line()`).</span></span>
+<span id="cb11-34"><a href="#cb11-34" tabindex="-1"></a><span class="co">#&gt; Warning: Removed 22 rows containing missing values or values outside the scale range</span></span>
+<span id="cb11-35"><a href="#cb11-35" tabindex="-1"></a><span class="co">#&gt; (`geom_point()`).</span></span></code></pre></div>
+<p>&lt;img
+src=“/tmp/RtmpbTSW6h/Rbuild1864d1f2d4375/simulist/vignettes/reporting-delays-truncation_files/figure-html/plot-linelist-events-trunc-1.png”
+alt=“A dot plot with the event dates in the line list plotted a points
+on the figure, connected by horizontal lines. One row in the dot plot
+corresponds to one case (i.e. one row in the line list). The y-axis
+label is”Case name”, and the x-axis label is “Event date”. The event
+types are “Date admission” (red square), “Date Onset” (blue circle),
+“Date Outcome” (green triangle), and “Date Reporting” (purple diamond).
+The plot shows the distribution of delay times between each event for
+each individual in the line list, with the y-axis order by earliest date
+of symptom onset at the bottom. There is a vertical dashed line showing
+when the truncation day is.” /&gt;</p>
+<p>In this example several cases are removed as the reporting date
+occurs after the truncation time.</p>
+</div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>linelist_trunc <span class="ot">&lt;-</span> <span class="fu">truncate_linelist</span>(<span class="at">linelist =</span> linelist)</span></code></pre></div>
+<p><code>truncate_linelist()</code> assumes the event which is pertinent
+to the truncation of the data is the date of reporting
+(<code>$date_reporting</code>), as this is likely the date the case was
+first input into the line list, even if this date is before the date of
+hospital admission (<code>$date_admission</code>) or date of outcome
+(<code>$date_outcome</code>).</p>
+<p>Right-truncating line list date using {simulist} removes individuals
+(rows) when the sampled truncation time is less recent than the
+reporting date. For cases where the rows are kept because the truncation
+time is more recent than the truncation event, but there are subsequent
+events, such as date of hospitalisation, that are more recent than the
+truncation time, these events dates are set to <code>NA</code>. The
+reasoning being that these events are assumed to have not been reported
+yet.</p>
+<p>The <code>truncate_linelist()</code> function can also be used to
+reflect if the reporting of cases during an outbreak stopped on a given
+date.</p>
+<p>It is also possible to specify the <em>truncation time</em> as the
+number of days, weeks, months or years since the start of the outbreak.
+Here we right-truncate the line list 3 months since the start of the
+outbreak.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>linelist_trunc <span class="ot">&lt;-</span> <span class="fu">truncate_linelist</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">linelist =</span> linelist,</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">truncation_day =</span> <span class="dv">3</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">unit =</span> <span class="st">&quot;months&quot;</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  <span class="at">direction =</span> <span class="st">&quot;forward&quot;</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="truncate-to-emulate-different-stages-of-outbreak" class="section level2">
+<h2>Truncate to emulate different stages of outbreak</h2>
+<p>It is not possible to simulate a line list with
+<code>sim_linelist()</code> that is mid-way through an outbreak<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. This can
+make it difficult to generate outbreak data sets that resemble early
+outbreak dynamics where incidence is increasing, or mid-outbreak, or
+late in an outbreak as the disease approaches extinction. These types of
+data sets are useful for testing outbreak analytics method that are
+applied in real-time outbreak scenarios.</p>
+<p>The <code>truncate_linelist()</code> function enables converting a
+complete line list from <code>sim_linelist()</code> into a
+within-outbreak line list.</p>
+<p>We can simulate another outbreak, this time with more cases, and plot
+the complete line list by aggregating to daily incidence using the
+{incidence2} package.</p>
+<div class="alert alert-info">
+<p>For a full overview of how to visualise outbreak data simulated with
+{simulist} see the <a href="vis-linelist.html">Visualising simulated
+data</a> vignette.</p>
+</div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># set seed to produce single wave outbreak</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>linelist <span class="ot">&lt;-</span> <span class="fu">sim_linelist</span>(</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  <span class="at">contact_distribution =</span> contact_distribution,</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  <span class="at">infectious_period =</span> infectious_period,</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>  <span class="at">prob_infection =</span> <span class="fl">0.5</span>,</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>  <span class="at">onset_to_hosp =</span> onset_to_hosp,</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>  <span class="at">onset_to_death =</span> onset_to_death,</span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>  <span class="at">outbreak_size =</span> <span class="fu">c</span>(<span class="dv">500</span>, <span class="dv">5000</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>)</span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co"># create incidence object</span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>weekly_inci <span class="ot">&lt;-</span> <span class="fu">incidence</span>(</span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a>  <span class="at">x =</span> linelist,</span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a>  <span class="at">date_index =</span> <span class="st">&quot;date_onset&quot;</span>,</span>
+<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a>  <span class="at">interval =</span> <span class="st">&quot;epiweek&quot;</span>,</span>
+<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a>  <span class="at">complete_dates =</span> <span class="cn">TRUE</span></span>
+<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">plot</span>(weekly_inci)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" alt="An incidence curve (epicurve) of cases from symptom onset aggregated by week. The y-axis is the count, the x-axis is the date index. The weekly incidence increases from week 1 to week 6, then it gradually declines." /></p>
+<p>By looking at the outbreak, we can pick three points to truncate: 1)
+early in the outbreak when the epicurve is growing (1st February 2023,
+epiweek 5), 2) in the middle of the outbreak (15th March 2023, epiweek
+11), and 3) late in the outbreak when the number of cases is declining
+and the end of the outbreak is near (1st May 2023, epiweek 18).</p>
+<p>We can specify a <code>&lt;Date&gt;</code> object to the
+<code>truncation_day</code> argument in <code>truncate_linelist()</code>
+to specify the date we want to apply the right truncation to.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>linelist_early <span class="ot">&lt;-</span> <span class="fu">truncate_linelist</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="at">linelist =</span> linelist,</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="at">truncation_day =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2023-02-01&quot;</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>)</span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>inci_early <span class="ot">&lt;-</span> <span class="fu">incidence</span>(</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a>  <span class="at">x =</span> linelist_early,</span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>  <span class="at">date_index =</span> <span class="st">&quot;date_onset&quot;</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a>  <span class="at">interval =</span> <span class="st">&quot;epiweek&quot;</span>,</span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a>  <span class="at">complete_dates =</span> <span class="cn">TRUE</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a>)</span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a>linelist_mid <span class="ot">&lt;-</span> <span class="fu">truncate_linelist</span>(</span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a>  <span class="at">linelist =</span> linelist,</span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a>  <span class="at">truncation_day =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2023-03-15&quot;</span>)</span>
+<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a>)</span>
+<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a>inci_mid <span class="ot">&lt;-</span> <span class="fu">incidence</span>(</span>
+<span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a>  <span class="at">x =</span> linelist_mid,</span>
+<span id="cb16-18"><a href="#cb16-18" tabindex="-1"></a>  <span class="at">date_index =</span> <span class="st">&quot;date_onset&quot;</span>,</span>
+<span id="cb16-19"><a href="#cb16-19" tabindex="-1"></a>  <span class="at">interval =</span> <span class="st">&quot;epiweek&quot;</span>,</span>
+<span id="cb16-20"><a href="#cb16-20" tabindex="-1"></a>  <span class="at">complete_dates =</span> <span class="cn">TRUE</span></span>
+<span id="cb16-21"><a href="#cb16-21" tabindex="-1"></a>)</span>
+<span id="cb16-22"><a href="#cb16-22" tabindex="-1"></a></span>
+<span id="cb16-23"><a href="#cb16-23" tabindex="-1"></a>linelist_late <span class="ot">&lt;-</span> <span class="fu">truncate_linelist</span>(</span>
+<span id="cb16-24"><a href="#cb16-24" tabindex="-1"></a>  <span class="at">linelist =</span> linelist,</span>
+<span id="cb16-25"><a href="#cb16-25" tabindex="-1"></a>  <span class="at">truncation_day =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2023-05-01&quot;</span>)</span>
+<span id="cb16-26"><a href="#cb16-26" tabindex="-1"></a>)</span>
+<span id="cb16-27"><a href="#cb16-27" tabindex="-1"></a>inci_late <span class="ot">&lt;-</span> <span class="fu">incidence</span>(</span>
+<span id="cb16-28"><a href="#cb16-28" tabindex="-1"></a>  <span class="at">x =</span> linelist_late,</span>
+<span id="cb16-29"><a href="#cb16-29" tabindex="-1"></a>  <span class="at">date_index =</span> <span class="st">&quot;date_onset&quot;</span>,</span>
+<span id="cb16-30"><a href="#cb16-30" tabindex="-1"></a>  <span class="at">interval =</span> <span class="st">&quot;epiweek&quot;</span>,</span>
+<span id="cb16-31"><a href="#cb16-31" tabindex="-1"></a>  <span class="at">complete_dates =</span> <span class="cn">TRUE</span></span>
+<span id="cb16-32"><a href="#cb16-32" tabindex="-1"></a>)</span></code></pre></div>
+<p>Next we repeat this procedure of creating data sets for early, mid,
+and late in the outbreak. For this example we will use a reporting delay
+to illustrate the issue of under-reporting of recent cases when there is
+a time delay between symptom onset and reporting.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="co"># set seed to produce single wave outbreak</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>linelist <span class="ot">&lt;-</span> <span class="fu">sim_linelist</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="at">contact_distribution =</span> contact_distribution,</span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>  <span class="at">infectious_period =</span> infectious_period,</span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>  <span class="at">prob_infection =</span> <span class="fl">0.5</span>,</span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>  <span class="at">onset_to_hosp =</span> onset_to_hosp,</span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>  <span class="at">onset_to_death =</span> onset_to_death,</span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>  <span class="at">reporting_delay =</span> <span class="cf">function</span>(x) <span class="fu">rlnorm</span>(<span class="at">n =</span> x, <span class="at">meanlog =</span> <span class="dv">2</span>, <span class="at">sdlog =</span> <span class="fl">0.5</span>),</span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a>  <span class="at">outbreak_size =</span> <span class="fu">c</span>(<span class="dv">500</span>, <span class="dv">5000</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>linelist_early <span class="ot">&lt;-</span> <span class="fu">truncate_linelist</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>  <span class="at">linelist =</span> linelist,</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>  <span class="at">truncation_day =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2023-02-01&quot;</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>)</span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>inci_early <span class="ot">&lt;-</span> <span class="fu">incidence</span>(</span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>  <span class="at">x =</span> linelist_early,</span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>  <span class="at">date_index =</span> <span class="st">&quot;date_onset&quot;</span>,</span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>  <span class="at">interval =</span> <span class="st">&quot;epiweek&quot;</span>,</span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a>  <span class="at">complete_dates =</span> <span class="cn">TRUE</span></span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a>)</span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a></span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a>linelist_mid <span class="ot">&lt;-</span> <span class="fu">truncate_linelist</span>(</span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a>  <span class="at">linelist =</span> linelist,</span>
+<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a>  <span class="at">truncation_day =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2023-03-15&quot;</span>)</span>
+<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a>)</span>
+<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a>inci_mid <span class="ot">&lt;-</span> <span class="fu">incidence</span>(</span>
+<span id="cb18-17"><a href="#cb18-17" tabindex="-1"></a>  <span class="at">x =</span> linelist_mid,</span>
+<span id="cb18-18"><a href="#cb18-18" tabindex="-1"></a>  <span class="at">date_index =</span> <span class="st">&quot;date_onset&quot;</span>,</span>
+<span id="cb18-19"><a href="#cb18-19" tabindex="-1"></a>  <span class="at">interval =</span> <span class="st">&quot;epiweek&quot;</span>,</span>
+<span id="cb18-20"><a href="#cb18-20" tabindex="-1"></a>  <span class="at">complete_dates =</span> <span class="cn">TRUE</span></span>
+<span id="cb18-21"><a href="#cb18-21" tabindex="-1"></a>)</span>
+<span id="cb18-22"><a href="#cb18-22" tabindex="-1"></a></span>
+<span id="cb18-23"><a href="#cb18-23" tabindex="-1"></a>linelist_late <span class="ot">&lt;-</span> <span class="fu">truncate_linelist</span>(</span>
+<span id="cb18-24"><a href="#cb18-24" tabindex="-1"></a>  <span class="at">linelist =</span> linelist,</span>
+<span id="cb18-25"><a href="#cb18-25" tabindex="-1"></a>  <span class="at">truncation_day =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2023-05-01&quot;</span>)</span>
+<span id="cb18-26"><a href="#cb18-26" tabindex="-1"></a>)</span>
+<span id="cb18-27"><a href="#cb18-27" tabindex="-1"></a>inci_late <span class="ot">&lt;-</span> <span class="fu">incidence</span>(</span>
+<span id="cb18-28"><a href="#cb18-28" tabindex="-1"></a>  <span class="at">x =</span> linelist_late,</span>
+<span id="cb18-29"><a href="#cb18-29" tabindex="-1"></a>  <span class="at">date_index =</span> <span class="st">&quot;date_onset&quot;</span>,</span>
+<span id="cb18-30"><a href="#cb18-30" tabindex="-1"></a>  <span class="at">interval =</span> <span class="st">&quot;epiweek&quot;</span>,</span>
+<span id="cb18-31"><a href="#cb18-31" tabindex="-1"></a>  <span class="at">complete_dates =</span> <span class="cn">TRUE</span></span>
+<span id="cb18-32"><a href="#cb18-32" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">plot</span>(inci_early) <span class="sc">+</span></span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Early&quot;</span>) <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">25</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>))</span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="fu">plot</span>(inci_mid) <span class="sc">+</span></span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Mid&quot;</span>) <span class="sc">+</span></span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">25</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>))</span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="fu">plot</span>(inci_late) <span class="sc">+</span></span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Late&quot;</span>) <span class="sc">+</span></span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">25</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code></pre></div>
+<p><img src="data:image/png;base64,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" alt="Three incidence curves (epicurves) in a single row, the left plot is the outbreak snapshot early in the outbreak, the middle plot is the outbreak and the right plot is the end of the outbreak. The cases are aggregated by week. The y-axis is the count, the x-axis is the date index. This plot shows fewer cases in the days before the truncation day due to right-truncation of the reporting delay." width="30%" /><img src="data:image/png;base64,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" alt="Three incidence curves (epicurves) in a single row, the left plot is the outbreak snapshot early in the outbreak, the middle plot is the outbreak and the right plot is the end of the outbreak. The cases are aggregated by week. The y-axis is the count, the x-axis is the date index. This plot shows fewer cases in the days before the truncation day due to right-truncation of the reporting delay." width="30%" /><img src="data:image/png;base64,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" alt="Three incidence curves (epicurves) in a single row, the left plot is the outbreak snapshot early in the outbreak, the middle plot is the outbreak and the right plot is the end of the outbreak. The cases are aggregated by week. The y-axis is the count, the x-axis is the date index. This plot shows fewer cases in the days before the truncation day due to right-truncation of the reporting delay." width="30%" /></p>
+<p>Comparing the two sets of the three plots you can see how in the
+latter applying right truncation gives the impression that cases are
+declining.</p>
+<p>These truncated line lists can be used to test methods that estimate
+the real-time reproduction number such as <a href="https://epiforecasts.io/EpiNow2/">{EpiNow2}</a> or <a href="https://package.epinowcast.org/">{epinowcast}</a>.</p>
+</div>
+<div class="footnotes footnotes-end-of-document">
+<hr />
+<ol>
+<li id="fn1"><p><code>sim_linelist()</code> simulates an outbreak to
+extinction except in cases where the number of infected individuals
+exceeds the maximum outbreak size specified in the
+<code>outbreak_size</code> argument in <code>sim_linelist()</code>,
+which by default is 10^{4} where the line list returned is an ongoing
+outbreak.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

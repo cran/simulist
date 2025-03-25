@@ -1,7 +1,9 @@
 ## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 5
 )
 
 ## ----setup--------------------------------------------------------------------
@@ -57,7 +59,7 @@ linelist <- sim_linelist(
 )
 head(linelist)
 
-## ----plot-age-range, fig.cap="Age distribution of individuals in a simulated line list sampled from a uniform distribution between 5 and 75.", fig.width = 8, fig.height = 5----
+## ----plot-age-range-----------------------------------------------------------
 ggplot(linelist[, c("sex", "age")]) +
   geom_histogram(
     mapping = aes(x = age),
@@ -71,9 +73,8 @@ ggplot(linelist[, c("sex", "age")]) +
 
 ## ----make-age-struct-df-------------------------------------------------------
 age_struct <- data.frame(
-  age_range = c("1-19", "20-59", "60-90"),
-  proportion = c(0.3, 0.4, 0.3),
-  stringsAsFactors = FALSE
+  age_limit = c(1, 20, 60, 90),
+  proportion = c(0.3, 0.4, 0.3, 0)
 )
 age_struct
 
@@ -90,7 +91,7 @@ linelist <- sim_linelist(
 
 head(linelist)
 
-## ----plot-age-struct, fig.cap="Age distribution of line list cases facetted by sex", fig.width = 8, fig.height = 5----
+## ----plot-age-struct----------------------------------------------------------
 ggplot(linelist[, c("sex", "age")]) +
   geom_histogram(
     mapping = aes(x = age),
@@ -105,9 +106,8 @@ ggplot(linelist[, c("sex", "age")]) +
 
 ## ----make-age-struct-df-young-------------------------------------------------
 age_struct <- data.frame(
-  age_range = c("1-9", "10-29", "30-59", "60-75"),
-  proportion = c(0.4, 0.3, 0.2, 0.1),
-  stringsAsFactors = FALSE
+  age_limit = c(1, 10, 30, 60, 75),
+  proportion = c(0.4, 0.3, 0.2, 0.1, 0)
 )
 age_struct
 
@@ -124,7 +124,7 @@ linelist <- sim_linelist(
 
 head(linelist)
 
-## ----plot-age-struct-young, fig.cap="Age pyramid for a simulated line list with an age structured population.", fig.width = 8, fig.height = 5----
+## ----prep-age-struct-young----------------------------------------------------
 linelist_m <- subset(linelist, subset = sex == "m")
 age_cats_m <- as.data.frame(table(floor(linelist_m$age / 5) * 5))
 colnames(age_cats_m) <- c("AgeCat", "Population")
@@ -139,6 +139,7 @@ age_cats <- rbind(age_cats_m, age_cats_f)
 breaks <- pretty(range(age_cats$Population), n = 10)
 labels <- abs(breaks)
 
+## ----plot-age-struct-young----------------------------------------------------
 ggplot(age_cats) +
   geom_col(mapping = aes(x = Population, y = factor(AgeCat), fill = sex)) +
   scale_y_discrete(name = "Lower bound of Age Category") +

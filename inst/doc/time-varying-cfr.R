@@ -1,7 +1,9 @@
 ## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 5
 )
 
 ## ----setup--------------------------------------------------------------------
@@ -32,10 +34,13 @@ infectious_period <- epiparameter(
 )
 
 # get onset to hospital admission from {epiparameter} database
-onset_to_hosp <- epiparameter_db(
+onset_to_hosp <- epiparameter(
   disease = "COVID-19",
   epi_name = "onset to hospitalisation",
-  single_epiparameter = TRUE
+  prob_distribution = create_prob_distribution(
+    prob_distribution = "lnorm",
+    prob_distribution_params = c(meanlog = 1, sdlog = 0.5)
+  )
 )
 
 # get onset to death from {epiparameter} database
@@ -75,16 +80,16 @@ linelist <- linelist %>%
     date_recovery = recovered
   )
 
-## ----plot-onset-hospitalisation, fig.cap="Daily incidence of cases from symptom onset and incidence of deaths. Case fatality risk for hospitalised individuals is 0.5 and the risk for non-hospitalised individuals is 0.05, and these risks are constant through time.", fig.width = 8, fig.height = 5----
+## ----plot-onset-hospitalisation-----------------------------------------------
 daily <- incidence(
   linelist,
   date_index = c(
     onset = "date_onset",
     death = "date_death"
   ),
-  interval = "daily"
+  interval = "daily",
+  complete_dates = TRUE
 )
-daily <- complete_dates(daily)
 plot(daily)
 
 ## ----sim-linelist-higher-death-risk-------------------------------------------
@@ -113,16 +118,18 @@ linelist <- linelist %>%
     date_recovery = recovered
   )
 
-## ----plot-onset-death-higher-risk, fig.cap="Daily incidence of cases from symptom onset and incidence of deaths. Case fatality risk for hospitalised individuals is 0.9 and the risk for non-hospitalised individuals is 0.75, and these risks are constant through time.", fig.width = 8, fig.height = 5----
+## ----prep-onset-death-higher-risk---------------------------------------------
 daily <- incidence(
   linelist,
   date_index = c(
     onset = "date_onset",
     death = "date_death"
   ),
-  interval = "daily"
+  interval = "daily",
+  complete_dates = TRUE
 )
-daily <- complete_dates(daily)
+
+## ----plot-onset-death-higher-risk---------------------------------------------
 plot(daily)
 
 ## ----setup-time-varying-cfr---------------------------------------------------
@@ -130,11 +137,13 @@ config <- create_config(
   time_varying_death_risk = function(risk, time) risk * exp(-0.05 * time)
 )
 
-## ----plot-exponential-dist, fig.cap="The time-varying hospitalised case fatality risk function (`config$time_varying_death_risk`) throughout the epidemic. In this case the hospitalised risks (`hosp_death_risk`) are at their maximum value at day 0 and decline through time, with risk approaching zero at around day 100.", fig.width = 8, fig.height = 5----
+## ----prep-exponential-dist----------------------------------------------------
 exp_df <- data.frame(
   time = 1:150,
   value = config$time_varying_death_risk(risk = 0.9, time = 1:150)
 )
+
+## ----plot-exponential-dist----------------------------------------------------
 ggplot(exp_df) +
   geom_point(mapping = aes(x = time, y = value)) +
   scale_y_continuous(name = "Value") +
@@ -167,16 +176,18 @@ linelist <- linelist %>%
     date_recovery = recovered
   )
 
-## ----plot-onset-death-time-varying-cfr, fig.cap="Daily incidence of cases from symptom onset and incidence of deaths. The baseline case fatality risk for hospitalised individuals is 0.9 and for non-hospitalised individuals is 0.75, and these decline exponentially through time.", fig.width = 8, fig.height = 5----
+## ----prep-onset-death-time-varying-cfr----------------------------------------
 daily <- incidence(
   linelist,
   date_index = c(
     onset = "date_onset",
     death = "date_death"
   ),
-  interval = "daily"
+  interval = "daily",
+  complete_dates = TRUE
 )
-daily <- complete_dates(daily)
+
+## ----plot-onset-death-time-varying-cfr----------------------------------------
 plot(daily)
 
 ## ----setup-time-varying-cfr-stepwise, echo=2----------------------------------
@@ -186,11 +197,13 @@ config <- create_config(
 )
 # nolint end
 
-## ----plot-stepwise-dist, fig.cap="The time-varying case fatality risk function (`config$time_varying_death_risk`) for the hospitalised death risk (`hosp_death_risk`) and non-hospitalised death risk (`non_hosp_death_risk`) throughout the epidemic. In this case the risks are at their user-supplied values from day 0 to day 60, and then become 0 onwards.", fig.width = 8, fig.height = 5----
+## ----prep-stepwise-dist-------------------------------------------------------
 stepwise_df <- data.frame(
   time = 1:150,
   value = config$time_varying_death_risk(risk = 0.9, time = 1:150)
 )
+
+## ----plot-stepwise-dist-------------------------------------------------------
 ggplot(stepwise_df) +
   geom_point(mapping = aes(x = time, y = value)) +
   scale_y_continuous(name = "Value") +
@@ -223,16 +236,18 @@ linelist <- linelist %>%
     date_recovery = recovered
   )
 
-## ----plot-onset-death-time-varying-cfr-stepwise, fig.cap="Daily incidence of cases from symptom onset and incidence of deaths. The maximum case fatality risk for hospitalised individuals is 0.9 and for non-hospitalised individuals is 0.75, and these rates remain constant from days 0 to 60, and then go to 0 from day 60 onwards.", fig.width = 8, fig.height = 5----
+## ----prep-onset-death-time-varying-cfr-stepwise-------------------------------
 daily <- incidence(
   linelist,
   date_index = c(
     onset = "date_onset",
     death = "date_death"
   ),
-  interval = "daily"
+  interval = "daily",
+  complete_dates = TRUE
 )
-daily <- complete_dates(daily)
+
+## ----plot-onset-death-time-varying-cfr-stepwise-------------------------------
 plot(daily)
 
 ## ----setup-time-varying-cfr-stepwise-window-----------------------------------
@@ -242,11 +257,13 @@ config <- create_config(
   }
 )
 
-## ----plot-stepwise-dist-window, fig.cap="The time-varying case fatality risk function (`config$time_varying_death_risk`) which scales the hospitalised death risk (`hosp_death_risk`) and non-hospitalised death risk (`non_hosp_death_risk`) throughout the epidemic. In this case the risks are at their maximum, user-supplied, values from day 0 to day 50, and then half the risks from day 50 to day 100, and then return to their maximum value from day 100 onwards.", fig.width = 8, fig.height = 5----
+## ----prep-stepwise-dist-window------------------------------------------------
 stepwise_df <- data.frame(
   time = 1:150,
   value = config$time_varying_death_risk(risk = 0.9, time = 1:150)
 )
+
+## ----plot-stepwise-dist-window------------------------------------------------
 ggplot(stepwise_df) +
   geom_point(mapping = aes(x = time, y = value)) +
   scale_y_continuous(name = "Value", limits = c(0, 1)) +
@@ -279,15 +296,17 @@ linelist <- linelist %>%
     date_recovery = recovered
   )
 
-## ----plot-onset-death-time-varying-cfr-stepwise-window, fig.cap="Daily incidence of cases from symptom onset and incidence of deaths. The maximum case fatality risk for hospitalised individuals is 0.9 and for non-hospitalised individuals is 0.75, and these rates remain constant from days 0 to 50, and then from days 50 to 100 the case fatality risk is halved (i.e `hosp_death_risk` = 0.45 and `non_hosp_death_risk` = 0.375), before going back to their original risks from day 100 onwards.", fig.width = 8, fig.height = 5----
+## ----prep-onset-death-time-varying-cfr-stepwise-window------------------------
 daily <- incidence(
   linelist,
   date_index = c(
     onset = "date_onset",
     death = "date_death"
   ),
-  interval = "daily"
+  interval = "daily",
+  complete_dates = TRUE
 )
-daily <- complete_dates(daily)
+
+## ----plot-onset-death-time-varying-cfr-stepwise-window------------------------
 plot(daily)
 
