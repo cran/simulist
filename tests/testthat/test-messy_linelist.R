@@ -149,6 +149,15 @@ test_that("messy_linelist works with inconsistent_id", {
   expect_false(identical(ll$id, messy_ll$id))
 })
 
+test_that("messy_linelist works with missing_value vector", {
+  messy_ll <- messy_linelist(
+    ll,
+    prop_missing = 0.8,
+    missing_value = c("missing", "N/A", "Not Available")
+  )
+  expect_true(all(c("missing", "N/A", "Not Available") %in% unlist(messy_ll)))
+})
+
 test_that("messy_linelist warns when coercing from missing_value", {
   expect_warning(
     messy_linelist(

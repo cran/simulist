@@ -1,10 +1,10 @@
 Package: simulist
 Title: Simulate Disease Outbreak Line List and Contacts Data
-Version: 0.5.0
+Version: 0.6.0
 Authors@R: c(
     person("Joshua W.", "Lambert", , "joshua.lambert@lshtm.ac.uk", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0001-5218-3046")),
-    person("Carmen", "Tamayo", , "carmen.tamayo-cuartero@lshtm.ac.uk", role = "aut",
+    person("Carmen", "Tamayo Cuartero", , "carmen.tamayo-cuartero@lshtm.ac.uk", role = "aut",
            comment = c(ORCID = "0000-0003-4184-2864")),
     person("Hugo", "Gruson", , "hugo@data.org", role = c("ctb", "rev"),
            comment = c(ORCID = "0000-0002-4094-1476")),
@@ -28,11 +28,11 @@ License: MIT + file LICENSE
 URL: https://github.com/epiverse-trace/simulist,
         https://epiverse-trace.github.io/simulist/
 BugReports: https://github.com/epiverse-trace/simulist/issues
-Depends: R (>= 4.1.0)
-Imports: checkmate, english, epiparameter (>= 0.4.0), randomNames,
-        rlang, stats
+Depends: R (>= 4.2.0)
+Imports: checkmate, english, epiparameter (>= 0.4.0), grates,
+        randomNames, rlang, stats
 Suggests: dplyr, epicontacts (>= 1.1.3), ggplot2, incidence2 (>=
-        2.3.0), knitr, rmarkdown, spelling, testthat (>= 3.0.0), tidyr
+        2.6.2), knitr, rmarkdown, spelling, testthat (>= 3.0.0), tidyr
 VignetteBuilder: knitr
 Config/Needs/website: epiverse-trace/epiversetheme
 Config/testthat/edition: 3
@@ -40,16 +40,19 @@ Encoding: UTF-8
 Language: en-GB
 RoxygenNote: 7.3.2
 NeedsCompilation: no
-Packaged: 2025-03-25 15:46:56 UTC; hugo
-Author: Joshua W. Lambert [aut, cre, cph]
-    (<https://orcid.org/0000-0001-5218-3046>),
-  Carmen Tamayo [aut] (<https://orcid.org/0000-0003-4184-2864>),
-  Hugo Gruson [ctb, rev] (<https://orcid.org/0000-0002-4094-1476>),
-  Pratik R. Gupte [ctb, rev] (<https://orcid.org/0000-0001-5294-7819>),
-  Adam Kucharski [rev] (<https://orcid.org/0000-0001-8814-9421>),
-  Chris Hartgerink [rev] (<https://orcid.org/0000-0003-1050-6809>),
-  Sebastian Funk [ctb] (<https://orcid.org/0000-0002-2842-3406>),
-  London School of Hygiene and Tropical Medicine, LSHTM [cph] (00a0jsq62)
+Packaged: 2025-08-28 10:32:22 UTC; lshjl15
+Author: Joshua W. Lambert [aut, cre, cph] (ORCID:
+    <https://orcid.org/0000-0001-5218-3046>),
+  Carmen Tamayo Cuartero [aut] (ORCID:
+    <https://orcid.org/0000-0003-4184-2864>),
+  Hugo Gruson [ctb, rev] (ORCID: <https://orcid.org/0000-0002-4094-1476>),
+  Pratik R. Gupte [ctb, rev] (ORCID:
+    <https://orcid.org/0000-0001-5294-7819>),
+  Adam Kucharski [rev] (ORCID: <https://orcid.org/0000-0001-8814-9421>),
+  Chris Hartgerink [rev] (ORCID: <https://orcid.org/0000-0003-1050-6809>),
+  Sebastian Funk [ctb] (ORCID: <https://orcid.org/0000-0002-2842-3406>),
+  London School of Hygiene and Tropical Medicine, LSHTM [cph] (ROR:
+    <https://ror.org/00a0jsq62>)
 Maintainer: Joshua W. Lambert <joshua.lambert@lshtm.ac.uk>
 Repository: CRAN
-Date/Publication: 2025-03-25 19:50:02 UTC
+Date/Publication: 2025-08-28 11:10:02 UTC

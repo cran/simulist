@@ -15,7 +15,10 @@ MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.or
 [![Codecov test
 coverage](https://codecov.io/gh/epiverse-trace/simulist/branch/main/graph/badge.svg)](https://app.codecov.io/gh/epiverse-trace/simulist?branch=main)
 [![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![Project Status: Active – The project has reached a stable, usable
+state and is being actively
+developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10471459.svg)](https://doi.org/10.5281/zenodo.10471459)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/simulist)](https://CRAN.R-project.org/package=simulist)
@@ -52,6 +55,8 @@ Post-process simulated line list data for:
 
 :date: Real-time outbreak snapshots with right-truncation <br> :memo:
 Messy data with inconsistencies, mistakes and missing values <br>
+:ledger: Censor dates to daily, epi- and iso-weekly, yearly and other
+groupings <br>
 
 ## Installation
 
@@ -288,12 +293,12 @@ head(contacts)
 #> 5    Rodrigo Deluca Abdul Rauf al-Mirza   4   m         2022-12-28
 #> 6 Jeremiah Sitinjak    Habsa Huntington   9   f         2022-12-29
 #>   date_last_contact was_case         status
-#> 1        2023-01-04        Y           case
-#> 2        2023-01-02        Y           case
-#> 3        2023-01-02        N under_followup
-#> 4        2023-01-02        Y           case
-#> 5        2023-01-02        Y           case
-#> 6        2023-01-03        N under_followup
+#> 1        2023-01-04     TRUE           case
+#> 2        2023-01-02     TRUE           case
+#> 3        2023-01-02    FALSE under_followup
+#> 4        2023-01-02     TRUE           case
+#> 5        2023-01-02     TRUE           case
+#> 6        2023-01-03    FALSE under_followup
 ```
 
 If both the line list and contacts table are required, they can be
@@ -341,12 +346,12 @@ head(outbreak$contacts)
 #> 5 Augustine Gonzales         Luke Flood   4   m         2023-01-02
 #> 6 Augustine Gonzales          Suki Lang  15   f         2022-12-29
 #>   date_last_contact was_case         status
-#> 1        2023-01-05        Y           case
-#> 2        2023-01-03        N under_followup
-#> 3        2023-01-05        Y           case
-#> 4        2023-01-06        N under_followup
-#> 5        2023-01-05        Y           case
-#> 6        2023-01-03        N under_followup
+#> 1        2023-01-05     TRUE           case
+#> 2        2023-01-03    FALSE under_followup
+#> 3        2023-01-05     TRUE           case
+#> 4        2023-01-06    FALSE under_followup
+#> 5        2023-01-05     TRUE           case
+#> 6        2023-01-03    FALSE under_followup
 ```
 
 ## Help
@@ -373,8 +378,8 @@ By contributing to this project, you agree to abide by its terms.
 citation("simulist")
 #> To cite package 'simulist' in publications use:
 #> 
-#>   Lambert J, Tamayo C (2025). _simulist: Simulate Disease Outbreak Line
-#>   List and Contacts Data_. doi:10.5281/zenodo.10471458
+#>   Lambert J, Tamayo Cuartero C (2025). _simulist: Simulate Disease
+#>   Outbreak Line List and Contacts Data_. doi:10.5281/zenodo.10471458
 #>   <https://doi.org/10.5281/zenodo.10471458>,
 #>   <https://epiverse-trace.github.io/simulist/>.
 #> 
@@ -382,7 +387,7 @@ citation("simulist")
 #> 
 #>   @Manual{,
 #>     title = {simulist: Simulate Disease Outbreak Line List and Contacts Data},
-#>     author = {Joshua W. Lambert and Carmen Tamayo},
+#>     author = {Joshua W. Lambert and Carmen {Tamayo Cuartero}},
 #>     year = {2025},
 #>     doi = {10.5281/zenodo.10471458},
 #>     url = {https://epiverse-trace.github.io/simulist/},
@@ -464,6 +469,10 @@ list that should be added, or if a package included in this list has
 been updated and the table should reflect this please contribute by
 making an [issue](https://github.com/epiverse-trace/simulist/issues) or
 a [pull request](https://github.com/epiverse-trace/simulist/pulls).
+
+Other R packages for simulating epidemic dynamics can be found in the
+*Epidemic simulation models* section of the [Epidemiology CRAN task
+view](https://CRAN.R-project.org/view=Epidemiology).
 
 Some packages are related to {simulist} but do not simulate line list
 data. These include:

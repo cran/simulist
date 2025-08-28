@@ -8,6 +8,7 @@ knitr::opts_chunk$set(
 library(simulist)
 library(epiparameter)
 library(dplyr)
+library(epicontacts)
 
 ## ----read-epidist-------------------------------------------------------------
 # create contact distribution (not available from {epiparameter} database)
@@ -57,6 +58,102 @@ outbreak <- sim_outbreak(
 )
 linelist <- outbreak$linelist
 contacts <- outbreak$contacts
+
+## -----------------------------------------------------------------------------
+linelist$date_onset
+unclass(linelist$date_onset)
+
+## -----------------------------------------------------------------------------
+daily_cens_linelist <- censor_linelist(linelist, interval = "daily")
+head(daily_cens_linelist)
+
+weekly_cens_linelist <- censor_linelist(linelist, interval = "weekly")
+head(weekly_cens_linelist)
+
+## -----------------------------------------------------------------------------
+linelist$date_onset
+round(linelist$date_onset)
+daily_cens_linelist$date_onset
+
+## -----------------------------------------------------------------------------
+linelist %>%
+  filter(as.logical(rbinom(n(), size = 1, prob = 0.5)))
+
+## -----------------------------------------------------------------------------
+idx <- as.logical(rbinom(n = nrow(linelist), size = 1, prob = 0.5))
+linelist[idx, ]
+
+## -----------------------------------------------------------------------------
+linelist %>%
+  dplyr::slice_sample(prop = 0.5) %>%
+  dplyr::arrange(id)
+
+## -----------------------------------------------------------------------------
+epicontacts <- make_epicontacts(
+  linelist = linelist,
+  contacts = contacts,
+  id = "case_name",
+  from = "from",
+  to = "to",
+  directed = TRUE
+)
+plot(epicontacts)
+
+## -----------------------------------------------------------------------------
+all_contacts <- unique(c(contacts$from, contacts$to))
+not_reported <- sample(x = all_contacts, size = 0.5 * length(all_contacts))
+not_reported
+
+## -----------------------------------------------------------------------------
+# make copy of contact tracing data for under-reporting
+contacts_ur <- contacts
+for (person in not_reported) {
+  contacts_ur <- contacts_ur[contacts_ur$to != person, ]
+  contacts_ur[contacts_ur$from %in% person, "from"] <- NA
+}
+head(contacts_ur)
+
+## -----------------------------------------------------------------------------
+linelist_ur <- linelist[!linelist$case_name %in% not_reported, ]
+epicontacts <- make_epicontacts(
+  linelist = linelist_ur,
+  contacts = contacts_ur,
+  id = "case_name",
+  from = "from",
+  to = "to",
+  directed = TRUE
+)
+plot(epicontacts)
+
+## -----------------------------------------------------------------------------
+all_contacts <- unique(c(contacts$from, contacts$to))
+not_reported <- sample(x = all_contacts, size = 1)
+not_reported
+
+## -----------------------------------------------------------------------------
+# make copy of contact tracing data for under-reporting
+contacts_ur <- contacts
+while (length(not_reported) > 0) {
+  contacts_ur <- contacts_ur[!contacts_ur$to %in% not_reported, ]
+  not_reported_ <- contacts_ur$to[contacts_ur$from %in% not_reported]
+  contacts_ur <- contacts_ur[!contacts_ur$from %in% not_reported, ]
+  not_reported <- not_reported_
+}
+head(contacts_ur)
+
+## -----------------------------------------------------------------------------
+# subset line list to match under-reporting in contact tracing data
+linelist_ur <- linelist[linelist$case_name %in% unique(contacts$from), ]
+
+epicontacts <- make_epicontacts(
+  linelist = linelist_ur,
+  contacts = contacts_ur,
+  id = "case_name",
+  from = "from",
+  to = "to",
+  directed = TRUE
+)
+plot(epicontacts)
 
 ## ----rm-ct-col-tidyverse------------------------------------------------------
 # remove column by name

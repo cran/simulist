@@ -92,7 +92,6 @@ linelist <- sim_linelist(
 head(linelist)
 
 ## ----sim-age_strat_linelist-error, error=TRUE---------------------------------
-try({
 age_dep_hosp_risk <- data.frame(
   age_limit = c(1, 5, 95),
   risk = c(0.1, 0.05, 0.2)
@@ -107,7 +106,6 @@ linelist <- sim_linelist(
   onset_to_death = onset_to_death,
   hosp_risk = age_dep_hosp_risk
 )
-})
 
 ## ----sim-age_strat-linelist-diff-age-range------------------------------------
 age_dep_hosp_risk <- data.frame(

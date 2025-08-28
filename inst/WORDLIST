@@ -12,6 +12,7 @@ config
 CoV
 COVID
 Ct
+Cuartero
 Deon
 df
 DHIS
@@ -34,18 +35,21 @@ epiweek
 errored
 etc
 facetted
+fastymd
 ggplot
 gh
 github
 Grolemund
 infectee
+infectees
 infector
 integerish
 io
+iso
 jsq
-Kadar
 knitr
 Kobo
+lifecycle
 Lifecycle
 linelist
 lintr
@@ -59,7 +63,6 @@ MERS
 MSF
 nowcasting
 offs
-olds
 ORCID
 parameterise
 parameterised
@@ -69,6 +72,7 @@ PII
 pkgdown
 Poisson
 Pratik
+primarycensored
 px
 qPCR
 R's
@@ -87,6 +91,7 @@ st
 stochasticity
 svg
 tabset
+Tamayo
 testthat
 th
 threejs
@@ -94,6 +99,6 @@ tidyr
 tidyverse
 Tidyverse
 tinytest
+unclass
 visNetwork
-Vladmir
 yaml

@@ -38,6 +38,10 @@
 #' the `truncation_day` as the time since the start of the outbreak.
 #'
 #' @return A line list `<data.frame>`.
+#'
+#' The output `<data.frame>` has the same structure as the input `<data.frame>`
+#' from [sim_linelist()], but can be a subset and dates after truncation set
+#' to `NA`.
 #' @export
 #'
 #' @examples
@@ -119,6 +123,9 @@ truncate_linelist <- function(linelist,
   # which cases are reported before the truncation date (i.e. included)
   reported_lgl_idx <- trunc_date > linelist$date_reporting
   linelist <- linelist[reported_lgl_idx, ]
+
+  # convert outcomes more recent than truncation time to NA by outcome date
+  linelist$outcome[linelist$date_outcome > trunc_date] <- NA_character_
 
   # get date columns to be modified if after truncation time
   date_col_lgl_idx <- vapply(

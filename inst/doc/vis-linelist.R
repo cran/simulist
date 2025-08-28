@@ -60,6 +60,13 @@ linelist <- sim_linelist(
   outbreak_size = c(500, 1e4)
 )
 
+## ----incidence-date-warn------------------------------------------------------
+# create incidence object
+daily <- incidence(
+  x = linelist,
+  date_index = "date_onset"
+)
+
 ## ----create-incidence---------------------------------------------------------
 # create incidence object
 daily <- incidence(
@@ -90,12 +97,12 @@ weekly <- incidence(
 plot(weekly)
 
 ## ----reshape-linelist-base-r, eval=FALSE--------------------------------------
-# # this can also be achieved with the reshape() function but the user interface
-# # for that function is complicated so here we just create the columns manually
-# linelist$date_death <- linelist$date_outcome
-# linelist$date_death[linelist$outcome == "recovered"] <- NA
-# linelist$date_recovery <- linelist$date_outcome
-# linelist$date_recovery[linelist$outcome == "died"] <- NA
+#  # this can also be achieved with the reshape() function but the user interface
+#  # for that function is complicated so here we just create the columns manually
+#  linelist$date_death <- linelist$date_outcome
+#  linelist$date_death[linelist$outcome == "recovered"] <- NA
+#  linelist$date_recovery <- linelist$date_outcome
+#  linelist$date_recovery[linelist$outcome == "died"] <- NA
 
 ## ----reshape-linelist-tidyverse, message=FALSE--------------------------------
 library(tidyr)
@@ -165,12 +172,12 @@ epicontacts
 plot(epicontacts)
 
 ## ----subset-linelist-base-r---------------------------------------------------
-outbreak$contacts <- outbreak$contacts[outbreak$contacts$was_case == "Y", ]
+outbreak$contacts <- outbreak$contacts[outbreak$contacts$was_case, ]
 
 ## ----subset-linelist-tidyverse------------------------------------------------
 library(dplyr)
 outbreak$contacts <- outbreak$contacts %>% # nolint one_call_pipe_linter
-  dplyr::filter(was_case == "Y")
+  dplyr::filter(was_case)
 
 ## ----inspect-data-------------------------------------------------------------
 head(outbreak$linelist)
